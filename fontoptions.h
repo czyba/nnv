@@ -27,7 +27,7 @@ enum FOREGROUND_COLORS {
   FG_WHITE =          37
 };
 
-enum BACKGROUND_COLOR {
+enum BACKGROUND_COLORS {
   BG_BLACK =          40,
   BG_RED =            41,
   BG_GREEN =          42,
