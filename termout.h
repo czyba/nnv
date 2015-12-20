@@ -5,7 +5,7 @@ struct terminal_command_queue_t;
 
 typedef struct terminal_commands_queue_t tcq_t;
 
-tc* get_command_queue(size_t size);
+tcq_t* get_command_queue(size_t size);
 
 int move_cursor(tcq_t* queue, int x, int y);
 
