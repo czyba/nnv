@@ -1,9 +1,7 @@
 #include <stddef.h>
 #include "fontoptions.h"
 
-struct terminal_command_queue_t;
-
-typedef struct terminal_commands_queue_t tcq_t;
+typedef struct terminal_command_queue_t tcq_t;
 
 tcq_t* get_command_queue(size_t size);
 
