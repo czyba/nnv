@@ -1,9 +1,12 @@
+#ifndef _TERMOUT_H
+#define _TERMOUT_H
+
 #include <stddef.h>
 #include "fontoptions.h"
 
 typedef struct terminal_command_queue_t tcq_t;
 
-tcq_t* get_command_queue(size_t size);
+tcq_t const* get_command_queue(size_t size);
 
 int move_cursor(tcq_t* queue, int x, int y);
 
@@ -17,3 +20,5 @@ int execute(tcq_t* queue);
 int append_options_r(tcq_t* queue, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color);
 int append_output_r(tcq_t* queue, char* output);
 int execute_r(tcq_t* queue);
+
+#endif

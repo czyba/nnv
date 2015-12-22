@@ -2,19 +2,22 @@
 
 #define NO_OPTION -1
 
-enum FONT_OPTION {
-  DEFAULT =           0,
-  BOLD_ON =           1,
-  HALF_BRIGHT_ON =    2,
-  UNDERSCORE_ON =     4,
-  BLINK_ON =          5,
-  BOLD_OFF =         21,
-  HALF_BRIGHT_OFF =  22,
-  UNDERSCORE_OFF =   24,
-  BLINK_OFF =        25,
-};
+#define FONT_BOLD_MASK 0x3
+#define FONT_BRIGHT_MASK 0xC
+#define FONT_UNDERSCORE_MASK 0x30
+#define FONT_BLINK_MASK 0xC0
 
-#define IS_FONT_OPTION(x) ((0 <= x && x <= 5 && x != 3) || (21 <= x && x <= 25 && x != 23))
+enum FONT_OPTION {
+  FONT_DEFAULT =           0x0,
+  FONT_BOLD_ON =           0x1,
+  FONT_BOLD_OFF =          0x2,
+  FONT_HALF_BRIGHT_ON =    0x4,
+  FONT_HALF_BRIGHT_OFF =   0x8,
+  FONT_UNDERSCORE_ON =     0x10,
+  FONT_UNDERSCORE_OFF =    0x20,
+  FONT_BLINK_ON =          0x40,
+  FONT_BLINK_OFF =         0x80
+};
 
 enum FOREGROUND_COLORS {
   FG_BLACK =          30,
