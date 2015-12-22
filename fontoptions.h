@@ -1,4 +1,5 @@
-
+#ifndef _FONTOPTIONS_H
+#define _FONTOPTIONS_H
 
 #define NO_OPTION -1
 
@@ -43,3 +44,5 @@ enum BACKGROUND_COLORS {
 
 #define IS_FOREGROUND(x) (30 <= x && x <= 37)
 #define IS_BACKGROUND(x) (40 <= x && x <= 47)
+
+#endif
