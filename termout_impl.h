@@ -9,6 +9,7 @@ struct terminal_command_queue_t {
   char* buf;
 };
 
+int insert_CSI(tcq_t* q);
 int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit);
 int append_font_options(tcq_t* q, enum FONT_OPTION font_options);
 

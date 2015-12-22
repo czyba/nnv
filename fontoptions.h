@@ -1,7 +1,7 @@
 #ifndef _FONTOPTIONS_H
 #define _FONTOPTIONS_H
 
-#define NO_OPTION -1
+#define NO_OPTION -1U
 
 #define FONT_BOLD_MASK 0x3
 #define FONT_BRIGHT_MASK 0xC

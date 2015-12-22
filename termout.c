@@ -4,23 +4,23 @@
 
 #define CAN_INSERT(q, x) (q->pos + x >= q->size)
 
-static int insert_CSI(tcq_t* q) {
+int insert_CSI(tcq_t* q) {
   if(q == NULL) {
-    return 1;
+    return -1;
   }
   if (CAN_INSERT(q,2)) {
-    return 1;
+    return -1;
   }
   q->buf[q->pos++] = ESC;
   q->buf[q->pos++] = '[';
-  return 0;
+  return 2;
 }
 
 int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit) {
   if(!(option & BOTH_MASK)) {
     return 0;
   }
-  if(q == NULL || ((option & BOTH_MASK == BOTH_MASK))) {
+  if(q == NULL || ((option & BOTH_MASK) == BOTH_MASK)) {
     //both bits set is nonsensical
     return -1;
   }
@@ -60,7 +60,7 @@ tcq_t const* get_command_q(size_t size) {
 if(ret < 0) {                   \
   q->buf[restore_pos] = '0';    \
   q->pos = restore_pos;         \
-  return 1;                     \
+  return -1;                    \
 }
 
 #define INSERT_SEMICOLON_CONDITIONAL(q,ret, origPos)  \
@@ -69,7 +69,7 @@ if(ret > 0) {                                         \
     RESET_AND_RETURN(q,-1,origPos);                   \
   }                                                   \
   q->buf[q->pos++] = ';';                             \
-  written++;                                          \
+  ret++;                                              \
 }
 
 #define DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)      \
@@ -84,9 +84,10 @@ int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
   }
   if(font_options == FONT_DEFAULT) {
     if(!CAN_INSERT(q,2)) {
-      q->buf[q->pos++] = '0';
-      q->buf[q->pos++] = '0';
+      return -1;
     }
+    q->buf[q->pos++] = '0';
+    q->buf[q->pos++] = ';';
     return 2;
   }
   int ret = 0;
@@ -102,16 +103,27 @@ int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
 
   ret = insert_GENERIC(q, font_options & FONT_BLINK_MASK, FONT_BLINK_MASK, FONT_BLINK_OFF, '5');
   DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)
-
-  //readjust semicolon
-  q->buf[--(q->pos)] == 'm';
   return written;
+}
+
+int append_color(tcq_t* q, unsigned int foreground_color) {
+  if(q == NULL) {
+    return -1;
+  }
+  if(!CAN_INSERT(q, 3)) {
+    return -1;
+  }
+  //I want the (char) number, not the actual integer
+  q->buf[q->pos++] = (char)(foreground_color / 10) + '0';
+  q->buf[q->pos++] = (char)(foreground_color % 10) + '0';
+  q->buf[q->pos++] = ';';
+  return 3;
 }
 
 int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color){
   if(q == NULL) {
     //No queue given.
-    return 1;
+    return -1;
   }
   if(font_options == NO_OPTION && foreground_color == NO_OPTION && background_color == NO_OPTION) {
     //nothing to do
@@ -119,12 +131,30 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
   }
   size_t origPos = q->pos;
   int ret = 0;
-  int first = 0;
-  if(insert_CSI(q)) {
-    return 1;
-  }
+  int written = 0;
+  ret = insert_CSI(q);
+  RESET_AND_RETURN(q, ret, origPos);
+  written += ret;
+  //Order actually shouldn't matter
   if(font_options != NO_OPTION) {
     ret = append_font_options(q, font_options);
-    first = 1;
+    RESET_AND_RETURN(q, ret, origPos);
+    written += ret;
   }
+  if(IS_FOREGROUND(foreground_color)) {
+    ret = append_color(q, foreground_color);
+    INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos)
+    written += ret;
+  }
+  if(IS_BACKGROUND(background_color)) {
+    ret = append_color(q, background_color);
+    INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos);
+    written += ret;
+  }
+  if(written > 2) {
+    q->buf[q->pos-1] = 'm';
+  } else {
+    q->buf[q->pos++] = 'm';
+  }
+  return written;
 }
