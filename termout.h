@@ -18,7 +18,6 @@ int append_output(tcq_t* queue, char* output, size_t n);
 int execute(tcq_t* queue);
 
 // *_r options result in setting the cursor back to it's current position
-int append_options_r(tcq_t* queue, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color);
 int append_output_r(tcq_t* queue, char* output, size_t n);
 int execute_r(tcq_t* queue);
 
