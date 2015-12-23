@@ -199,3 +199,28 @@ int append_output(tcq_t* q, char* output, size_t n) {
   }
   memcpy(q->buf,output,n);
 }
+
+int append_output_r(tcq_t* q, char* output, size_t n) {
+  int written = 0;
+  size_t origPos = q->pos;
+  int ret = insert_CSI(q);
+  if(!CAN_INSERT(q,1)) {
+    RESET_AND_RETURN(q, -1, origPos);
+  }
+  q->buf[q->pos++] = 's';
+  written = ret + 1;
+  ret = append_output_r(q, output, n);
+  RESET_AND_RETURN(q, ret, origPos);
+  written += ret;
+  ret = insert_CSI(q);
+  if(!CAN_INSERT(q,1)) {
+    RESET_AND_RETURN(q,-1,origPos);
+  }
+  q->buf[q->pos++] = 'u'
+  written = ret + 1;
+  return written;
+}
+
+int execute_r(tcq_t* q) {
+  //TODO:
+}
