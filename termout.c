@@ -216,7 +216,7 @@ int append_output_r(tcq_t* q, char* output, size_t n) {
   }
   q->buf[q->pos++] = 's';
   written = ret + 1;
-  ret = append_output_r(q, output, n);
+  ret = append_output(q, output, n);
   RESET_AND_RETURN(q, ret, origPos);
   written += ret;
   ret = insert_CSI(q);
