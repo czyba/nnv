@@ -3,8 +3,34 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define CAN_INSERT(q, x) (q->pos + x < q->size)
+
+#define RESET_AND_RETURN(q, ret, restore_pos) \
+if(ret < 0) {                   \
+  q->buf[restore_pos] = '0';    \
+  q->pos = restore_pos;         \
+  return -1;                    \
+}
+
+#define INSERT_SEMICOLON_CONDITIONAL(q,ret, origPos)  \
+if(ret > 0) {                                         \
+  if(!CAN_INSERT(q, 1)) {                             \
+    RESET_AND_RETURN(q,-1,origPos);                   \
+  }                                                   \
+  q->buf[q->pos++] = ';';                             \
+  ret++;                                              \
+}
+
+#define DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)      \
+RESET_AND_RETURN(q, ret, origPos);                      \
+INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos);          \
+written += ret;
+
+inline int count_digits(int x) {
+  return floor(log10(abs(x))) + 1;
+}
 
 int insert_CSI(tcq_t* q) {
   if(q == NULL) {
@@ -41,6 +67,10 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
   return 1;
 }
 
+//int getPosition(int *x, int*y) {
+//
+//}
+
 tcq_t* alloc_command_queue(size_t size) {
   tcq_t* b = malloc(sizeof(tcq_t));
   if(b == NULL) {
@@ -69,26 +99,42 @@ int free_command_queue(tcq_t* q) {
   return 0;
 }
 
-#define RESET_AND_RETURN(q, ret, restore_pos) \
-if(ret < 0) {                   \
-  q->buf[restore_pos] = '0';    \
-  q->pos = restore_pos;         \
-  return -1;                    \
-}
+int move_cursor(tcq_t* q, int x, int y) {
+  if(q == NULL || x <= 0 || y <= 0) {
+    return -1;
+  }
+  size_t origPos = q->pos;
+  int written = 0;
+  int ret = insert_CSI(q);
+  RESET_AND_RETURN(q, ret, origPos)
+  written += ret;
 
-#define INSERT_SEMICOLON_CONDITIONAL(q,ret, origPos)  \
-if(ret > 0) {                                         \
-  if(!CAN_INSERT(q, 1)) {                             \
-    RESET_AND_RETURN(q,-1,origPos);                   \
-  }                                                   \
-  q->buf[q->pos++] = ';';                             \
-  ret++;                                              \
-}
+  size_t chars = 0;
+  int const bufSize = 2 * sizeof(x) + 4;
+  char buf[bufSize];
+  int pos = bufSize - 1;
+  buf[pos--] = 'H';
+  chars++;
 
-#define DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)      \
-RESET_AND_RETURN(q, ret, origPos);                      \
-INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos);          \
-written += ret;
+  while(y != 0) {
+    buf[pos--] = (char)((y % 10) + '0');
+    y /= 10;
+    chars++;
+  }
+  buf[pos--] = ';';
+  chars++;
+
+  while(x != 0) {
+    buf[pos--] = (char)((x % 10) + '0');
+    x /= 10;
+    chars++;
+  }
+
+  ret = append_output(q, buf + pos + 1, chars);
+  RESET_AND_RETURN(q, ret, origPos);
+  written += ret;
+  return written;
+}
 
 int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
   size_t origPos = q->pos;
