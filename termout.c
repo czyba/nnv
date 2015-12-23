@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
+#include <termios.h>
+#include <sys/select.h>
 
 #define CAN_INSERT(q, x) (q->pos + x < q->size)
 
@@ -67,9 +70,40 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
   return 1;
 }
 
-//int getPosition(int *x, int*y) {
-//
-//}
+int get_position(int* line, int* column) {
+  struct termios term, initial_term;
+  int success = 0;
+  fd_set readset;
+  tcq_t* q = alloc_command_queue(10);
+  insert_CSI(q);
+  q->buf[q->pos++] = '6';
+  q->buf[q->pos++] = 'n';
+  /*We store the actual properties of the input console and set it as:
+    no buffered (~ICANON): avoid blocking
+    no echoing (~ECHO): do not display the result on the console*/
+  tcgetattr(STDIN_FILENO, &initial_term);
+  term = initial_term;
+  term.c_lflag &=~ICANON;
+  term.c_lflag &=~ECHO;
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  //We wait 100ms for a terminal answer
+  FD_ZERO(&readset);
+  FD_SET(STDIN_FILENO, &readset);
+  execute(q);
+
+  //If it success we try to read the cursor value
+  if (select(STDIN_FILENO + 1, &readset, NULL, NULL, NULL) == 1) {
+    int ret = scanf("\033[%d;%dR", line, column);
+    if(ret != 2) {
+      success = -1;
+    }
+  }
+
+  //We set back the properties of the terminal
+  tcsetattr(STDIN_FILENO, TCSADRAIN, &initial_term);
+  free_command_queue(q);
+  return success;
+}
 
 tcq_t* alloc_command_queue(size_t size) {
   tcq_t* b = malloc(sizeof(tcq_t));

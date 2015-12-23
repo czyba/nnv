@@ -11,6 +11,7 @@ int free_command_queue(tcq_t* queue);
 
 int move_cursor(tcq_t* queue, int x, int y);
 int reset_queue(tcq_t* queue);
+int get_position(int* line, int* column);
 
 //TODO: enum!
 int append_options(tcq_t* queue, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color);
