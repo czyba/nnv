@@ -172,7 +172,7 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
 
 int execute(tcq_t* q)  {
   if(q == NULL) {
-    return 1;
+    return 0;
   }
   int ret = write(1,q->buf,q->pos);
   return ret;
