@@ -6,7 +6,7 @@
 
 typedef struct terminal_command_queue_t tcq_t;
 
-tcq_t const* alloc_command_queue(size_t size);
+tcq_t* alloc_command_queue(size_t size);
 int free_command_queue(tcq_t* queue);
 
 int move_cursor(tcq_t* queue, int x, int y);

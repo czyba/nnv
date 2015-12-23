@@ -1,5 +1,7 @@
 #include "termout_impl.h"
 #include "characters.h"
+#include <string.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 #define CAN_INSERT(q, x) (q->pos + x >= q->size)
@@ -39,7 +41,7 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
   return 1;
 }
 
-tcq_t const* alloc_command_queue(size_t size) {
+tcq_t* alloc_command_queue(size_t size) {
   tcq_t* b = malloc(sizeof(tcq_t));
   if(b == NULL) {
     return b;
@@ -198,6 +200,7 @@ int append_output(tcq_t* q, char* output, size_t n) {
     return -1;
   }
   memcpy(q->buf,output,n);
+  return n;
 }
 
 int append_output_r(tcq_t* q, char* output, size_t n) {
@@ -219,7 +222,7 @@ int append_output_r(tcq_t* q, char* output, size_t n) {
   if(!CAN_INSERT(q,1)) {
     RESET_AND_RETURN(q,-1,origPos);
   }
-  q->buf[q->pos++] = 'u'
+  q->buf[q->pos++] = 'u';
   written = ret + 1;
   return written;
 }
@@ -232,10 +235,10 @@ int execute_r(tcq_t* q) {
     return 0;
   }
   for(size_t i = q->pos - 1; i > 0; i--) {
-    q->buf[i + 3] = buf[i];
+    q->buf[i + 3] = q->buf[i];
   }
-  q->buf[3] = buf[0];
-  size_t origPos = pos + 3;
+  q->buf[3] = q->buf[0];
+  size_t origPos = q->pos + 3;
   q->pos = 0;
   insert_CSI(q);
   q->buf[2] = 's';
