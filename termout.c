@@ -204,47 +204,47 @@ int append_output(tcq_t* q, char* output, size_t n) {
   return n;
 }
 
-int append_output_r(tcq_t* q, char* output, size_t n) {
-  if(q == NULL) {
-    return -1;
-  }
-  int written = 0;
-  size_t origPos = q->pos;
-  int ret = insert_CSI(q);
-  if(!CAN_INSERT(q,1)) {
-    RESET_AND_RETURN(q, -1, origPos);
-  }
-  q->buf[q->pos++] = 's';
-  written += ret + 1;
-  ret = append_output(q, output, n);
-  RESET_AND_RETURN(q, ret, origPos);
-  written += ret;
-  ret = insert_CSI(q);
-  if(!CAN_INSERT(q,1)) {
-    RESET_AND_RETURN(q,-1,origPos);
-  }
-  q->buf[q->pos++] = 'u';
-  written += ret + 1;
-  return written;
-}
-
-int execute_r(tcq_t* q) {
-  if(q == NULL || !CAN_INSERT(q,6)) {
-    return -1;
-  }
-  if(q->pos == 0) {
-    return 0;
-  }
-  for(size_t i = q->pos - 1; i > 0; i--) {
-    q->buf[i + 3] = q->buf[i];
-  }
-  q->buf[3] = q->buf[0];
-  size_t origPos = q->pos + 3;
-  q->pos = 0;
-  insert_CSI(q);
-  q->buf[2] = 's';
-  q->pos = origPos;
-  insert_CSI(q);
-  q->buf[q->pos++] = 'u';
-  return execute(q);
-}
+// int append_output_r(tcq_t* q, char* output, size_t n) {
+//   if(q == NULL) {
+//     return -1;
+//   }
+//   int written = 0;
+//   size_t origPos = q->pos;
+//   int ret = insert_CSI(q);
+//   if(!CAN_INSERT(q,1)) {
+//     RESET_AND_RETURN(q, -1, origPos);
+//   }
+//   q->buf[q->pos++] = 's';
+//   written += ret + 1;
+//   ret = append_output(q, output, n);
+//   RESET_AND_RETURN(q, ret, origPos);
+//   written += ret;
+//   ret = insert_CSI(q);
+//   if(!CAN_INSERT(q,1)) {
+//     RESET_AND_RETURN(q,-1,origPos);
+//   }
+//   q->buf[q->pos++] = 'u';
+//   written += ret + 1;
+//   return written;
+// }
+//
+// int execute_r(tcq_t* q) {
+//   if(q == NULL || !CAN_INSERT(q,6)) {
+//     return -1;
+//   }
+//   if(q->pos == 0) {
+//     return 0;
+//   }
+//   for(size_t i = q->pos - 1; i > 0; i--) {
+//     q->buf[i + 3] = q->buf[i];
+//   }
+//   q->buf[3] = q->buf[0];
+//   size_t origPos = q->pos + 3;
+//   q->pos = 0;
+//   insert_CSI(q);
+//   q->buf[2] = 's';
+//   q->pos = origPos;
+//   insert_CSI(q);
+//   q->buf[q->pos++] = 'u';
+//   return execute(q);
+// }

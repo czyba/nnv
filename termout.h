@@ -18,7 +18,7 @@ int append_output(tcq_t* queue, char* output, size_t n);
 int execute(tcq_t* queue);
 
 // *_r options result in setting the cursor back to it's current position
-int append_output_r(tcq_t* queue, char* output, size_t n);
-int execute_r(tcq_t* queue);
+//int append_output_r(tcq_t* queue, char* output, size_t n);
+//int execute_r(tcq_t* queue);
 
 #endif
