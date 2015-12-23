@@ -75,7 +75,7 @@ tcq_t* alloc_command_queue(size_t size) {
   if(b == NULL) {
     return b;
   }
-  b->buf = malloc(sizeof(size));
+  b->buf = malloc(size);
   if(!b->buf) {
     free(b);
     b = NULL;
@@ -103,6 +103,9 @@ int get_cursor_position(int* line, int* column) {
   int success = 0;
   fd_set readset;
   tcq_t* q = alloc_command_queue(10);
+  if(q == NULL) {
+    return -1;
+  }
   insert_CSI(q);
   q->buf[q->pos++] = '6';
   q->buf[q->pos++] = 'n';
@@ -279,7 +282,7 @@ int append_output(tcq_t* q, char* output, size_t n) {
   if(!CAN_INSERT(q,n)) {
     return -1;
   }
-  memcpy(q->buf + q->pos ,output,n);
+  memcpy(q->buf + q->pos, output, n);
   q->pos += n;
   return n;
 }
@@ -328,3 +331,17 @@ int append_output(tcq_t* q, char* output, size_t n) {
 //   q->buf[q->pos++] = 'u';
 //   return execute(q);
 // }
+
+int print_queue(tcq_t* queue) {
+  for(size_t i = 0; i < queue->pos; i++) {
+    char c[2];
+    c[0] = queue->buf[i];
+    c[1] = 0;
+    if(c[0] == ESC) {
+      printf("pos = %d, ESC\n", (int)i);
+    } else {
+      printf("pos = %i, %s\n",(int) i, c);
+    }
+  }
+  return 0;
+}
