@@ -6,9 +6,11 @@
 
 typedef struct terminal_command_queue_t tcq_t;
 
-tcq_t const* get_command_queue(size_t size);
+tcq_t const* alloc_command_queue(size_t size);
+int free_command_queue(tcq_t* queue);
 
 int move_cursor(tcq_t* queue, int x, int y);
+int reset_queue(tcq_t* queue);
 
 //TODO: enum!
 int append_options(tcq_t* queue, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color);

@@ -39,7 +39,7 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
   return 1;
 }
 
-tcq_t const* get_command_q(size_t size) {
+tcq_t const* alloc_command_queue(size_t size) {
   tcq_t* b = malloc(sizeof(tcq_t));
   if(b == NULL) {
     return b;
@@ -54,6 +54,17 @@ tcq_t const* get_command_q(size_t size) {
   b->pos = 0;
   b->buf[0] = 0;
   return b;
+}
+
+int free_command_queue(tcq_t* q) {
+  if(q == NULL) {
+    return 0;
+  }
+  if(q->buf) {
+    free(q->buf);
+  }
+  free(q);
+  return 0;
 }
 
 #define RESET_AND_RETURN(q, ret, restore_pos) \
@@ -157,4 +168,24 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
     q->buf[q->pos++] = 'm';
   }
   return written;
+}
+
+int execute(tcq_t* q)  {
+  if(q == NULL) {
+    return 1;
+  }
+  int ret = write(1,q->buf,q->pos);
+  return ret;
+}
+
+int reset_queue(tcq_t* q) {
+  if(q == NULL) {
+    return 1;
+  }
+  if(q->size == 0) {
+    return 0;
+  }
+  q->buf[0] = 0;
+  q->pos = 0;
+  return 0;
 }
