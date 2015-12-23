@@ -4,13 +4,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define CAN_INSERT(q, x) (q->pos + x >= q->size)
+#define CAN_INSERT(q, x) (q->pos + x < q->size)
 
 int insert_CSI(tcq_t* q) {
   if(q == NULL) {
     return -1;
   }
-  if (CAN_INSERT(q,2)) {
+  if (!CAN_INSERT(q,2)) {
     return -1;
   }
   q->buf[q->pos++] = ESC;
@@ -156,12 +156,12 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
   }
   if(IS_FOREGROUND(foreground_color)) {
     ret = append_color(q, foreground_color);
-    INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos)
+    RESET_AND_RETURN(q, ret, origPos);
     written += ret;
   }
   if(IS_BACKGROUND(background_color)) {
     ret = append_color(q, background_color);
-    INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos);
+    RESET_AND_RETURN(q, ret, origPos);
     written += ret;
   }
   if(written > 2) {
@@ -199,7 +199,8 @@ int append_output(tcq_t* q, char* output, size_t n) {
   if(!CAN_INSERT(q,n)) {
     return -1;
   }
-  memcpy(q->buf,output,n);
+  memcpy(q->buf + q->pos ,output,n);
+  q->pos += n;
   return n;
 }
 
