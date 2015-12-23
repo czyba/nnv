@@ -102,7 +102,7 @@ CSI_end:
  {                                                                    \
    int ret = 0;                                                       \
    T_OUT("Test (x) option on NULL queue", "returning -1")             \
-   ret = append_font_option(NULL, m, m, off, y);                      \
+   ret = append_font_option(NULL, on, m, off, y);                      \
    if(ret >= 0) {                                                     \
      printf("Setting (x) on NULL worked.");                           \
      e = 1;                                                           \
