@@ -136,6 +136,7 @@ int get_cursor_position(int* line, int* column) {
   return success;
 }
 
+#pragma message "Replace by sprintf"
 int append_move_cursor(tcq_t* q, int x, int y) {
   if(q == NULL || x <= 0 || y <= 0) {
     return -1;
