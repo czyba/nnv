@@ -8,7 +8,7 @@
 #include <termios.h>
 #include <sys/select.h>
 
-#define CAN_INSERT(q, x) (q->pos + x < q->size)
+#define CAN_INSERT(q, x) (q->pos + x <= q->size)
 
 #define RESET_AND_RETURN(q, ret, restore_pos) \
 if(ret < 0) {                   \
@@ -71,6 +71,9 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
 }
 
 tcq_t* alloc_command_queue(size_t size) {
+  if(size == 0) {
+    return NULL;
+  }
   tcq_t* b = malloc(sizeof(tcq_t));
   if(b == NULL) {
     return b;
