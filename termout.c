@@ -189,3 +189,13 @@ int reset_queue(tcq_t* q) {
   q->pos = 0;
   return 0;
 }
+
+int append_output(tcq_t* q, char* output, size_t n) {
+  if(q == NULL) {
+    return -1;
+  }
+  if(!CAN_INSERT(q,n)) {
+    return -1;
+  }
+  memcpy(q->buf,output,n);
+}
