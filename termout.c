@@ -201,6 +201,9 @@ int append_output(tcq_t* q, char* output, size_t n) {
 }
 
 int append_output_r(tcq_t* q, char* output, size_t n) {
+  if(q == NULL) {
+    return -1;
+  }
   int written = 0;
   size_t origPos = q->pos;
   int ret = insert_CSI(q);
@@ -222,5 +225,22 @@ int append_output_r(tcq_t* q, char* output, size_t n) {
 }
 
 int execute_r(tcq_t* q) {
-  //TODO:
+  if(q == NULL || !CAN_INSERT(q,6)) {
+    return -1;
+  }
+  if(q->pos == 0) {
+    return 0;
+  }
+  for(size_t i = q->pos - 1; i > 0; i--) {
+    q->buf[i + 3] = buf[i];
+  }
+  q->buf[3] = buf[0];
+  size_t origPos = pos + 3;
+  q->pos = 0;
+  insert_CSI(q);
+  q->buf[2] = 's';
+  q->pos = origPos;
+  insert_CSI(q);
+  q->buf[q->pos++] = 'u';
+  return 6;
 }
