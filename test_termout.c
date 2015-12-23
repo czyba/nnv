@@ -98,23 +98,55 @@ CSI_end:
   RESULT_OUT(!error, "insert_CSI tests\n")
 }
 
-#define TEST_ONE_OPTION(m, on, off, y, e)                             \
- {                                                                    \
-   int ret = 0;                                                       \
-   T_OUT("Test (x) option on NULL queue", "returning -1")             \
-   ret = append_font_option(NULL, on, m, off, y);                      \
-   if(ret >= 0) {                                                     \
-     printf("Setting (x) on NULL worked.");                           \
-     e = 1;                                                           \
-   }                                                                  \
- }
+#define TEST_ONE_OPTION(m, on, off, y, e)                                                                                       \
+{                                                                                                                               \
+  int ret = 0;                                                                                                                  \
+  T_OUT("Test m option on NULL queue", "returning -1")                                                                          \
+  ret = append_font_option(NULL, on, m, off, y);                                                                                \
+  if(ret >= 0) {                                                                                                                \
+    printf("Setting m on NULL worked.\n");                                                                                      \
+    e = 1;                                                                                                                      \
+  }                                                                                                                             \
+  T_OUT("Test off option on small queue", "returning -1")                                                                       \
+  tcq_t* q = alloc_command_queue(1);                                                                                            \
+  ret = append_font_option(q, off, m, off, y);                                                                                  \
+  if(ret >= 0) {                                                                                                                \
+    printf("Setting off option on a too small queue worked. ret = %d\n", ret);                                                  \
+    e = 1;                                                                                                                      \
+  }                                                                                                                             \
+  free_command_queue(q);                                                                                                        \
+  T_OUT("Test on option on queue", "returning 1 and the respective byte set")                                                   \
+  q = alloc_command_queue(1);                                                                                                   \
+  ret = append_font_option(q, on, m, off, y);                                                                                   \
+  if(ret != 1 || q->buf[0] != y) {                                                                                              \
+    printf("Could not set on option in queue, ret = %d\n", ret);                                                                \
+    e = 1;                                                                                                                      \
+  }                                                                                                                             \
+  free_command_queue(q);                                                                                                        \
+  T_OUT("Test off option on queue", "returning 2 and the respective bytes set")                                                 \
+  q = alloc_command_queue(2);                                                                                                   \
+  ret = append_font_option(q, off, m, off, y);                                                                                  \
+  if(ret != 2 || q->buf[0] != '2' || q->buf[1] != y) {                                                                          \
+    printf("Could not set on option in queue, ret = %d, buf[0] = %d, buf[1] = %d\n", ret, q->buf[0], q->buf[1]);                \
+    e = 1;                                                                                                                      \
+  }                                                                                                                             \
+  free_command_queue(q);                                                                                                        \
+  T_OUT("Test setting both options", "returning -1")                                                                            \
+  q = alloc_command_queue(2);                                                                                                   \
+  ret = append_font_option(q, m, m, off, y);                                                                                    \
+  if(ret != -1 ) {                                                                                                              \
+    printf("Set both options which is not possible, ret = %d\n", ret);                                                          \
+    e = 1;                                                                                                                      \
+  }                                                                                                                             \
+  free_command_queue(q);                                                                                                        \
+}
 
 void test_insert_font_option(int argc) {
   printf("Start testing single font options\n");
   int error = 0;
-  TEST_ONE_OPTION(FONT_BOLD_MASK, FONT_BOLD_ON, FONT_BOLD_OFF, 'y', error)
-  TEST_ONE_OPTION(FONT_BRIGHT_MASK, FONT_BRIGHT_ON, FONT_BRIGHT_OFF, 'y', error)
-  TEST_ONE_OPTION(FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_ON, FONT_UNDERSCORE_OFF, 'y', error)
-  TEST_ONE_OPTION(FONT_BLINK_MASK, FONT_BLINK_ON, FONT_BLINK_OFF, 'y', error)
+  TEST_ONE_OPTION(FONT_BOLD_MASK, FONT_BOLD_ON, FONT_BOLD_OFF, '1', error)
+  TEST_ONE_OPTION(FONT_BRIGHT_MASK, FONT_BRIGHT_ON, FONT_BRIGHT_OFF, '2', error)
+  TEST_ONE_OPTION(FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_ON, FONT_UNDERSCORE_OFF, '4', error)
+  TEST_ONE_OPTION(FONT_BLINK_MASK, FONT_BLINK_ON, FONT_BLINK_OFF, '5', error)
   RESULT_OUT(!error, "append_font_option\n")
 }
