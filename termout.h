@@ -9,9 +9,10 @@ typedef struct terminal_command_queue_t tcq_t;
 tcq_t* alloc_command_queue(size_t size);
 int free_command_queue(tcq_t* queue);
 
-int move_cursor(tcq_t* queue, int x, int y);
 int reset_queue(tcq_t* queue);
-int get_position(int* line, int* column);
+
+int get_cursor_position(int* line, int* column);
+int append_move_cursor(tcq_t* queue, int x, int y);
 
 //TODO: enum!
 int append_options(tcq_t* queue, enum FONT_OPTION font_options, enum FOREGROUND_COLORS foreground_color, enum BACKGROUND_COLORS background_color);

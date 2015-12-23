@@ -70,7 +70,35 @@ int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char dig
   return 1;
 }
 
-int get_position(int* line, int* column) {
+tcq_t* alloc_command_queue(size_t size) {
+  tcq_t* b = malloc(sizeof(tcq_t));
+  if(b == NULL) {
+    return b;
+  }
+  b->buf = malloc(sizeof(size));
+  if(!b->buf) {
+    free(b);
+    b = NULL;
+    return b;
+  }
+  b->size = size;
+  b->pos = 0;
+  b->buf[0] = 0;
+  return b;
+}
+
+int free_command_queue(tcq_t* q) {
+  if(q == NULL) {
+    return 0;
+  }
+  if(q->buf) {
+    free(q->buf);
+  }
+  free(q);
+  return 0;
+}
+
+int get_cursor_position(int* line, int* column) {
   struct termios term, initial_term;
   int success = 0;
   fd_set readset;
@@ -105,35 +133,7 @@ int get_position(int* line, int* column) {
   return success;
 }
 
-tcq_t* alloc_command_queue(size_t size) {
-  tcq_t* b = malloc(sizeof(tcq_t));
-  if(b == NULL) {
-    return b;
-  }
-  b->buf = malloc(sizeof(size));
-  if(!b->buf) {
-    free(b);
-    b = NULL;
-    return b;
-  }
-  b->size = size;
-  b->pos = 0;
-  b->buf[0] = 0;
-  return b;
-}
-
-int free_command_queue(tcq_t* q) {
-  if(q == NULL) {
-    return 0;
-  }
-  if(q->buf) {
-    free(q->buf);
-  }
-  free(q);
-  return 0;
-}
-
-int move_cursor(tcq_t* q, int x, int y) {
+int append_move_cursor(tcq_t* q, int x, int y) {
   if(q == NULL || x <= 0 || y <= 0) {
     return -1;
   }
