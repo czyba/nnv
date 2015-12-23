@@ -35,7 +35,7 @@ inline int count_digits(int x) {
   return floor(log10(abs(x))) + 1;
 }
 
-int insert_CSI(tcq_t* q) {
+int append_CSI(tcq_t* q) {
   if(q == NULL) {
     return -1;
   }
@@ -47,7 +47,7 @@ int insert_CSI(tcq_t* q) {
   return 2;
 }
 
-int insert_GENERIC(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit) {
+int append_font_option(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit) {
   if(!(option & BOTH_MASK)) {
     return 0;
   }
@@ -109,7 +109,7 @@ int get_cursor_position(int* line, int* column) {
   if(q == NULL) {
     return -1;
   }
-  insert_CSI(q);
+  append_CSI(q);
   q->buf[q->pos++] = '6';
   q->buf[q->pos++] = 'n';
   /*We store the actual properties of the input console and set it as:
@@ -146,7 +146,7 @@ int append_move_cursor(tcq_t* q, int x, int y) {
   }
   size_t origPos = q->pos;
   int written = 0;
-  int ret = insert_CSI(q);
+  int ret = append_CSI(q);
   RESET_AND_RETURN(q, ret, origPos)
   written += ret;
 
@@ -192,16 +192,16 @@ int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
   }
   int ret = 0;
   int written = 0;
-  ret = insert_GENERIC(q, font_options & FONT_BOLD_MASK, FONT_BOLD_MASK, FONT_BOLD_OFF, '1');
+  ret = append_font_option(q, font_options & FONT_BOLD_MASK, FONT_BOLD_MASK, FONT_BOLD_OFF, '1');
   DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)
 
-  ret = insert_GENERIC(q, font_options & FONT_BRIGHT_MASK, FONT_BRIGHT_MASK, FONT_BRIGHT_OFF, '2');
+  ret = append_font_option(q, font_options & FONT_BRIGHT_MASK, FONT_BRIGHT_MASK, FONT_BRIGHT_OFF, '2');
   DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)
 
-  ret = insert_GENERIC(q, font_options & FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_OFF, '4');
+  ret = append_font_option(q, font_options & FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_OFF, '4');
   DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)
 
-  ret = insert_GENERIC(q, font_options & FONT_BLINK_MASK, FONT_BLINK_MASK, FONT_BLINK_OFF, '5');
+  ret = append_font_option(q, font_options & FONT_BLINK_MASK, FONT_BLINK_MASK, FONT_BLINK_OFF, '5');
   DEFAULT_FONT_APPEND_ACTION(q,ret, origPos)
   return written;
 }
@@ -232,7 +232,7 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
   size_t origPos = q->pos;
   int ret = 0;
   int written = 0;
-  ret = insert_CSI(q);
+  ret = append_CSI(q);
   RESET_AND_RETURN(q, ret, origPos);
   written += ret;
   //Order actually shouldn't matter
@@ -297,7 +297,7 @@ int append_output(tcq_t* q, char* output, size_t n) {
 //   }
 //   int written = 0;
 //   size_t origPos = q->pos;
-//   int ret = insert_CSI(q);
+//   int ret = append_CSI(q);
 //   if(!CAN_INSERT(q,1)) {
 //     RESET_AND_RETURN(q, -1, origPos);
 //   }
@@ -306,7 +306,7 @@ int append_output(tcq_t* q, char* output, size_t n) {
 //   ret = append_output(q, output, n);
 //   RESET_AND_RETURN(q, ret, origPos);
 //   written += ret;
-//   ret = insert_CSI(q);
+//   ret = append_CSI(q);
 //   if(!CAN_INSERT(q,1)) {
 //     RESET_AND_RETURN(q,-1,origPos);
 //   }
@@ -328,10 +328,10 @@ int append_output(tcq_t* q, char* output, size_t n) {
 //   q->buf[3] = q->buf[0];
 //   size_t origPos = q->pos + 3;
 //   q->pos = 0;
-//   insert_CSI(q);
+//   append_CSI(q);
 //   q->buf[2] = 's';
 //   q->pos = origPos;
-//   insert_CSI(q);
+//   append_CSI(q);
 //   q->buf[q->pos++] = 'u';
 //   return execute(q);
 // }
