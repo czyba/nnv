@@ -254,7 +254,7 @@ int append_options(tcq_t* q, enum FONT_OPTION font_options, enum FOREGROUND_COLO
   if(written > 2) {
     q->buf[q->pos-1] = 'm';
   } else {
-    q->buf[q->pos++] = 'm';
+    RESET_AND_RETURN(q, -1, origPos);
   }
   return written;
 }
