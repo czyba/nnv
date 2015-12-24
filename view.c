@@ -95,9 +95,6 @@ static void ed_process_cursor_changed(ed_view_t* ed) {
   }
 }
 
-#include <stdio.h>
-#include <unistd.h>
-
 static void ed_process_line_changed(ed_view_t* ed) {
   if(ed_adapt_to_input_position(ed)) {
     ed_redraw_everything(ed);
