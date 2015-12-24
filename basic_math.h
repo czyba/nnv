@@ -7,4 +7,6 @@ long long int max(long long int x, long long int y);
 unsigned long long int minu(unsigned long long int x, unsigned long long int y);
 unsigned long long int maxu(unsigned long long int x, unsigned long long int y);
 
+unsigned long long int next_pow_2(unsigned long long int x);
+
 #endif

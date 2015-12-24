@@ -7,7 +7,6 @@ enum CALLBACK_TYPE {
   EDITOR_INPUT_ALL,
   EDITOR_INPUT_LINE,
   EDITOR_INPUT_CURSOR
-
 };
 
 typedef struct editor_input_t ed_in_t;
