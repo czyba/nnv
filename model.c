@@ -38,50 +38,77 @@ ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum 
   return in;
 }
 
-static inline void move_back_character(ed_in_t* in) {
+static inline int move_up_line(ed_in_t* in) {
+  if(in->row == 0) {
+    return 0;
+  }
+  in->row--;
+  if(in->column > in->lines[in->row].pos) {
+    in->column = in->lines[in->row].pos;
+  }
+  return 1;
+}
+
+static inline int move_down_line(ed_in_t* in) {
+  if(in->row == in->num_lines - 1) {
+    return 0;
+  }
+  in->row++;
+  if(in->column > in->lines[in->row].pos) {
+    in->column = in->lines[in->row].pos;
+  }
+  return 1;
+}
+
+static inline int move_back_character(ed_in_t* in) {
   if(in->row == 0 && in->column == 0) {
-    return;
+    return 0;
   }
   if(in->column > 0) {
     in->column--;
-    return;
+  } else {
+    in->row--;
+    in->column = in->lines[in->row].pos;
   }
-  in->row--;
-  in->column = in->lines[in->row].pos;
+  return 1;
+
 }
 
-static inline void move_forward_character(ed_in_t* in) {
+static inline int move_forward_character(ed_in_t* in) {
   if(in->row == in->num_lines - 1 && in->column == in->lines[in->row].pos) {
-    return;
+    return 0;
   }
   if(in->column < in->lines[in->row].pos) {
     in->column++;
-    return;
+  } else {
+    in->row++;
+    in->column = 0;
   }
-  in->row++;
-  in->column = 0;
+  return 1;
 }
 
 void ed_non_ascii_input(ed_in_t* in, key_t k) {
+  int ret = 0;
   switch(k.nkey & KEY_MASK) {
     case UP: {
-      #pragma message "implement"
+      ret = move_up_line(in);
       break;
     }
     case DOWN: {
-      #pragma message "implement"
+      ret = move_down_line(in);
       break;
     }
     case RIGHT: {
-      move_forward_character(in);
-      in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+      ret = move_forward_character(in);
       break;
     }
     case LEFT: {
-      move_back_character(in);
-      in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+      ret = move_back_character(in);
       break;
     }
+  }
+  if(ret) {
+    in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
   }
 }
 
@@ -103,6 +130,9 @@ static void ed_input_printable_character(ed_in_t* in, key_t k) {
 static void ed_input_LF(ed_in_t* in) {
   in->num_lines++;
   in->lines = realloc(in->lines, in->num_lines * sizeof(line_t));
+  for(size_t i = in->num_lines - 1; in->row < i - 1; i--) {
+    in->lines[i] = in->lines[i - 1];
+  }
   line_t* old_line = &in->lines[in->row];
   line_t* new_line = &in->lines[in->row + 1];
   new_line->pos = old_line->pos - in->column;
