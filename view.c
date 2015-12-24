@@ -95,11 +95,32 @@ static void ed_process_cursor_changed(ed_view_t* ed) {
   }
 }
 
+#include <stdio.h>
+#include <unistd.h>
+
+static void ed_process_line_changed(ed_view_t* ed) {
+  if(ed_adapt_to_input_position(ed)) {
+    ed_redraw_everything(ed);
+  } else {
+    size_t in_row, in_col;
+    ed_in_t* in = ed->in;
+    ed_in_get_cursor_position(in, &in_row, &in_col);
+    tcq_t* q = alloc_command_queue(ed->area.columns + 64);
+    append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y);
+    size_t affected_row = in_row;
+    append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
+    ed_append_line(q, in, affected_row, ed->file_y, ed->area.columns);
+    append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+    execute(q);
+    free_command_queue(q);
+  }
+}
+
 void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type){
   if(type == EDITOR_INPUT_CURSOR) {
     ed_process_cursor_changed(ed);
   } else if (type == EDITOR_INPUT_LINE){
-    #pragma message "optimize change of line"
+    ed_process_line_changed(ed);
   } else if (type == EDITOR_INPUT_ALL) {
     ed_adapt_to_input_position(ed);
     ed_redraw_everything(ed);
