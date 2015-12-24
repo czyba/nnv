@@ -40,8 +40,16 @@ static void ed_redraw_everything(ed_view_t* ed) {
   append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
   execute(q);
   free_command_queue(q);
-  (void) in;
+}
 
+static void ed_move_cursor(ed_view_t* ed){
+  size_t in_row, in_col;
+  ed_in_t* in = ed->in;
+  tcq_t* q = alloc_command_queue(32);
+  ed_in_get_cursor_position(in, &in_row, &in_col);
+  append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+  execute(q);
+  free_command_queue(q);
 }
 
 ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int columns) {
@@ -57,22 +65,43 @@ ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int
   return ed;
 }
 
-void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type){
-  (void) type;
+static int ed_adapt_to_input_position(ed_view_t* ed) {
   ed_in_t* in = ed->in;
   size_t in_row, in_col;
+  int ret = 0;
   ed_in_get_cursor_position(in, &in_row, &in_col);
   if(ed->file_x > in_row) {
     ed->file_x = in_row;
-  }
-  if(ed->file_x + ed->area.rows <= in_row + 1) {
+    ret = 1;
+  } else if(ed->file_x + ed->area.rows <= in_row + 1) {
     ed->file_x = in_row - ed->area.rows + 1;
+    ret = 1;
   }
   if(ed->file_y > in_col) {
     ed->file_y = in_col;
-  }
-  if(ed->file_y + ed->area.columns < in_col + 1) {
+    ret = 1;
+  } else if(ed->file_y + ed->area.columns < in_col + 1) {
     ed->file_y = in_col - ed->area.columns + 1;
+    ret = 1;
   }
-  ed_redraw_everything(ed);
+  return ret;
+}
+
+static void ed_process_cursor_changed(ed_view_t* ed) {
+  if(ed_adapt_to_input_position(ed)) {
+    ed_redraw_everything(ed);
+  } else {
+    ed_move_cursor(ed);
+  }
+}
+
+void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type){
+  if(type == EDITOR_INPUT_CURSOR) {
+    ed_process_cursor_changed(ed);
+  } else if (type == EDITOR_INPUT_LINE){
+    #pragma message "optimize change of line"
+  } else if (type == EDITOR_INPUT_ALL) {
+    ed_adapt_to_input_position(ed);
+    ed_redraw_everything(ed);
+  }
 }
