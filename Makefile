@@ -6,7 +6,7 @@ CXXFLAGS=$(CFLAGS)
 
 
 all:
-	$(CC) $(CFLAGS) -o a.out termout.c main.c
+	$(CC) $(CFLAGS) -o a.out termout.c main.c input.c
 
 test:
 	$(CC) $(CFLAGS) -o test.out termout.c test_termout.c
