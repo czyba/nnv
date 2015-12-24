@@ -4,7 +4,6 @@
 #include "characters.h"
 #include <stddef.h>
 
-
 #define MOD_NONE  0
 #define MOD_SHIFT 0x10000000
 #define MOD_CTRL  0x20000000
@@ -25,6 +24,8 @@ typedef struct key_type_t {
   };
 } key_t;
 
+#define IS_PRINTABLE(x) (x.ascii && x.key >= 0x20)
 
 key_t parse_key(unsigned char* sequence, size_t n);
+
 #endif
