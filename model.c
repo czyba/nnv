@@ -1,8 +1,10 @@
 #include "model.h"
 #include "input.h"
 #include "controller.h"
+#include "basic_math.h"
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
 
 typedef struct line_t {
   char* line;
@@ -51,4 +53,24 @@ void ed_input(ed_in_t* in, key_t k) {
     in->controller_call_back((c_t*)in->controller, MODEL_EDITOR_INPUT);
     return;
   }
+}
+
+void fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_t length, char fill_character) {
+  if(in->lines.num_lines < row) {
+    memset(line_to_fill, fill_character, length);
+    return;
+  }
+  if(in->lines.lines[row].pos <= column) {
+    memset(line_to_fill, fill_character, length);
+    return;
+  }
+  #pragma message "replace for non-printable characters"
+  size_t cpy_length = minu(in->lines.lines[row].pos - column, length);
+  memcpy(line_to_fill, in->lines.lines[row].line + column, cpy_length);
+  if(cpy_length < length) {
+    for(size_t i = cpy_length; i < length; i++) {
+      line_to_fill[i] = fill_character;
+    }
+  }
+  return;
 }
