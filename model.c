@@ -94,7 +94,11 @@ void ed_input(ed_in_t* in, key_t k) {
       line->line = realloc(line->line, line->length);
     }
     #pragma message "Fix this shit, use row / column not pos"
-    line->line[line->pos++] = k.key;
+    for(size_t i = line->pos; i > in->column; i--) {
+      line->line[i] = line->line[i - 1];
+    }
+    line->line[in->column] = k.key;
+    line->pos++;
     in->column++;
     in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_LINE);
     return;
