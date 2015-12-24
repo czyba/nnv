@@ -11,10 +11,10 @@
 #define MOD_RALT  0x80000000
 
 #define KEY_MASK 0x0FFFFFFF
-#define UP 1
-#define DOWN 2
-#define RIGHT 3
-#define LEFT 4
+#define UP 0x00000001
+#define DOWN 0x00000002
+#define RIGHT 0x00000003
+#define LEFT 0x00000004
 
 typedef struct key_type_t {
   int ascii;

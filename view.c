@@ -1,4 +1,5 @@
 #include "view.h"
+#include "model.h"
 #include "termout.h"
 #include <stdlib.h>
 #include <string.h>
@@ -25,10 +26,10 @@ static void ed_append_line(tcq_t* q, ed_in_t* in, size_t row, size_t column, siz
 }
 
 static void ed_redraw_everything(ed_view_t* ed) {
-  //TODO: handle cursor properly
   size_t in_row, in_col;
   ed_in_t* in = ed->in;
   ed_in_get_cursor_position(in, &in_row, &in_col);
+  #pragma message "heuristic is for small terminals SHIT"
   tcq_t* q = alloc_command_queue(ed->area.rows * ed->area.columns * 2);
   append_move_cursor(q, ed->area.origin_x, ed->area.origin_y);
   append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
@@ -56,21 +57,22 @@ ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int
   return ed;
 }
 
-void ed_process_input_changed(ed_view_t* ed){
+void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type){
+  (void) type;
   ed_in_t* in = ed->in;
   size_t in_row, in_col;
   ed_in_get_cursor_position(in, &in_row, &in_col);
   if(ed->file_x > in_row) {
     ed->file_x = in_row;
   }
-  if(ed->file_x + ed->area.rows < in_row) {
-    ed->file_x = in_row - ed->area.rows - 1;
+  if(ed->file_x + ed->area.rows <= in_row + 1) {
+    ed->file_x = in_row - ed->area.rows + 1;
   }
   if(ed->file_y > in_col) {
     ed->file_y = in_col;
   }
-  if(ed->file_y + ed->area.columns < in_col) {
-    ed->file_y = in_col - ed->area.columns - 1;
+  if(ed->file_y + ed->area.columns < in_col + 1) {
+    ed->file_y = in_col - ed->area.columns + 1;
   }
   ed_redraw_everything(ed);
 }

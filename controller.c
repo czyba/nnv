@@ -16,10 +16,10 @@ struct controller_t {
 
 #include <stdio.h>
 
-static void call_back (void* controller, enum MODEL_TYPE callback_type) {
+static void call_back (void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
-  if(callback_type == MODEL_EDITOR_INPUT) {
-    ed_process_input_changed(c->ed_view);
+  if(callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE || callback_type == EDITOR_INPUT_CURSOR) {
+    ed_process_input_changed(c->ed_view, callback_type);
   }
 }
 

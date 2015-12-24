@@ -18,20 +18,20 @@ typedef struct lines_t {
 } lines_t;
 
 typedef struct editor_input_t {
-  enum MODEL_TYPE type;
+  enum CALLBACK_TYPE type;
   lines_t lines;
   //line and column of the cursor on the data set!
   size_t row, column;
 
-  void (*controller_call_back) (void* controller, enum MODEL_TYPE);
+  void (*controller_call_back) (void* controller, enum CALLBACK_TYPE);
   void* controller;
 } ed_in_t;
 
-ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum MODEL_TYPE callback_type), void* controller) {
+ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum CALLBACK_TYPE callback_type), void* controller) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
   in->row = 0;
   in->column = 0;
-  in->lines.lines = malloc(sizeof(line_t*));
+  in->lines.lines = malloc(sizeof(line_t));
   in->lines.num_lines = 1;
   in->lines.lines[0].line = malloc(sizeof(char));
   in->lines.lines[0].length = 1;
@@ -41,6 +41,51 @@ ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum 
   return in;
 }
 
+static inline void move_back_character(ed_in_t* in) {
+  if(in->row == 0 && in->column == 0) {
+    return;
+  }
+  if(in->column > 0) {
+    in->column--;
+    return;
+  }
+  in->row--;
+  in->column = in->lines.lines[in->row].pos;
+}
+
+static inline void move_forward_character(ed_in_t* in) {
+  if(in->row == in->lines.num_lines - 1 && in->column == in->lines.lines[in->row].pos) {
+    return;
+  }
+  if(in->column < in->lines.lines[in->row].pos) {
+    in->column++;
+    return;
+  }
+  in->row++;
+  in->column = 0;
+}
+
+void ed_non_ascii_input(ed_in_t* in, key_t k) {
+  switch(k.nkey & KEY_MASK) {
+    case UP: {
+      #pragma message "implement"
+    }
+    case DOWN: {
+      #pragma message "implement"
+    }
+    case RIGHT: {
+      move_forward_character(in);
+      in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+      break;
+    }
+    case LEFT: {
+      move_back_character(in);
+      in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+      break;
+    }
+  }
+}
+
 void ed_input(ed_in_t* in, key_t k) {
   if(IS_PRINTABLE(k)) {
     line_t* line = &in->lines.lines[in->row];
@@ -48,9 +93,14 @@ void ed_input(ed_in_t* in, key_t k) {
       line->length <<= 1;
       line->line = realloc(line->line, line->length);
     }
+    #pragma message "Fix this shit, use row / column not pos"
     line->line[line->pos++] = k.key;
     in->column++;
-    in->controller_call_back((c_t*)in->controller, MODEL_EDITOR_INPUT);
+    in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_LINE);
+    return;
+  }
+  if(!k.ascii) {
+    ed_non_ascii_input(in, k);
     return;
   }
 }

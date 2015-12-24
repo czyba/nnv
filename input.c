@@ -12,11 +12,11 @@ static key_t parse_CSI(unsigned char* a, size_t len) {
       if(len == 3) {
         break;
       } else if (a[len - 2] == '1') {
-        key.nkey = MOD_RALT;
+        key.nkey |= MOD_RALT;
       } else if (a[len - 2] == '3') {
-        key.nkey = MOD_LALT;
+        key.nkey |= MOD_LALT;
       } else if (a[len - 2] == '5') {
-        key.nkey = MOD_CTRL;
+        key.nkey |= MOD_CTRL;
       }
       break;
     }
@@ -44,7 +44,7 @@ key_t parse_key(unsigned char* a, size_t len) {
     return key;
   }
   if(a[0] == ESC) {
-    parse_ESC(a, len);
+    return parse_ESC(a, len);
   }
   key_t key;
   key.ascii = 0;
