@@ -1,7 +1,7 @@
-CC=gcc
-CFLAGS=-O2 -Wall -Wextra -Werror -std=c11
+CC=clang
+CFLAGS=-O2 -ggdb -Wall -Wextra -Werror -std=c11
 
-CXX=g++
+CXX=clang++
 CXXFLAGS=$(CFLAGS)
 
 

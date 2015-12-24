@@ -31,9 +31,8 @@ static key_t parse_ESC(unsigned char* a, size_t len) {
   if(a[1] == '[') {
     return parse_CSI(a, len);
   }
-  (void) a;
-  (void) len;
   key_t key;
+  key.ascii = 0;
   return key;
 }
 
@@ -48,5 +47,6 @@ key_t parse_key(unsigned char* a, size_t len) {
     parse_ESC(a, len);
   }
   key_t key;
+  key.ascii = 0;
   return key;
 }

@@ -56,7 +56,7 @@ void ed_input(ed_in_t* in, key_t k) {
 }
 
 void fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_t length, char fill_character) {
-  if(in->lines.num_lines < row) {
+  if(in->lines.num_lines <= row) {
     memset(line_to_fill, fill_character, length);
     return;
   }
@@ -73,4 +73,9 @@ void fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_
     }
   }
   return;
+}
+
+void ed_in_get_cursor_position(ed_in_t* in, size_t* row, size_t* column) {
+  *row = in->row;
+  *column = in->column;
 }
