@@ -228,6 +228,7 @@ static void ed_input_LF(ed_in_t* in) {
 }
 
 void ed_input(ed_in_t* in, key_t k) {
+  #pragma message "Move method into controller"
   if(k.ascii) {
     if(IS_PRINTABLE(k)) {
       ed_input_printable_character(in, k);
