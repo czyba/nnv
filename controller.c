@@ -57,6 +57,7 @@ c_t* init_controller() {
   get_area_size(&rows, &columns);
   normalize_area(rows, columns);
   ret->ed_view = ed_init_editor(in, 1, 1, rows, columns);
+  ed_in_init_file(in, "controller.c");
   return ret;
 }
 

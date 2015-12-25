@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #include <unistd.h>
 #include <stdio.h>
@@ -23,9 +27,69 @@ typedef struct editor_input_t {
   //line and column of the cursor on the data set!
   size_t row, column;
 
+  char* file_name;
+  int fd;
+
   void (*controller_call_back)(void* controller, enum CALLBACK_TYPE);
   void* controller;
 } ed_in_t;
+
+static int ed_in_write_line(line_t* line, char* buf, size_t length) {
+  size_t i = 0;
+  for(; i < length; i++) {
+    if(buf[i] == '\n') {
+      i++;
+      break;
+    }
+  }
+  size_t new_length;
+  size_t new_pos = line->pos + i;
+  if(buf[i] == '\n') {
+    new_length = next_pow_2(new_pos + 1);
+  } else {
+    new_length = next_pow_2(new_pos);
+  }
+  if(new_length > line->length) {
+    line->line = realloc(line->line, new_length);
+  }
+  memcpy(line->line + line->pos, buf, i);
+  line->length = new_length;
+  line->pos = new_pos;
+  if(buf[i] == '\n'){
+    i = -i;
+  }
+  return i;
+}
+
+void ed_in_init_file(ed_in_t* in, char* filename) {
+  in->fd = open(filename, O_CREAT | O_RDWR | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
+  if(in->fd < 0) {
+    return;
+  }
+  char buf[4096];
+  int chars_read = read(in->fd, buf, sizeof(buf));
+  line_t* line = &in->lines[0];
+  while(chars_read >= 0) {
+    if(chars_read == 0) {
+      break;
+    }
+    int i = 0;
+    while(i < chars_read) {
+      int tmp = ed_in_write_line(line, buf + i, chars_read - i);
+      if(tmp < 0) {
+        in->num_lines++;
+        in->lines = realloc(in->lines, in->num_lines);
+        line = &in->lines[in->num_lines - 1];
+        line->pos = 0;
+        line->length = 1;
+        line->line = malloc(sizeof(char));
+        tmp = -tmp;
+      }
+      i += tmp;
+    }
+    chars_read = read(in->fd, buf, sizeof(buf));
+  }
+}
 
 ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum CALLBACK_TYPE callback_type), void* controller) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
