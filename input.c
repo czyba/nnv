@@ -3,26 +3,30 @@
 static key_t parse_CSI(unsigned char* a, size_t len) {
   key_t key;
   key.ascii = 0;
+  key.nkey = 0;
   switch(a[len - 1]) {
     case 'A':
     case 'B':
     case 'C':
     case 'D': {
       key.nkey = a[len - 1] - 'A' + 1;
-      if(len == 3) {
-        break;
-      } else if (a[len - 2] == '1') {
-        key.nkey |= MOD_RALT;
-      } else if (a[len - 2] == '3') {
-        key.nkey |= MOD_LALT;
-      } else if (a[len - 2] == '5') {
-        key.nkey |= MOD_CTRL;
+      if(len != 3) {
+        if (a[len - 2] == '1') {
+          key.nkey |= MOD_RALT;
+        } else if (a[len - 2] == '3') {
+          key.nkey |= MOD_LALT;
+        } else if (a[len - 2] == '5') {
+          key.nkey |= MOD_CTRL;
+        }
       }
-      break;
+      return key;
     }
     default:
       break;
-      //TODO
+  }
+  if(len == 4 && a[2] == '3' && a[3] == '~') {
+    //DEL
+    key.nkey = DEL;
   }
   return key;
 }

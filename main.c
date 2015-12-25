@@ -41,19 +41,20 @@ int main() {
   ssize_t n;
   while(1) {
     n = read(0, tmp, 10);
-    // printf("read %lu: ", n);
-    // for(unsigned int i = 0; i < n; i++) {
-    //   printf("b[%i] = 0x%.2hhx, ", i, tmp[i]);
-    // }
-    // printf("\n");
     key_t k = parse_key(tmp, n);
     if(k.ascii && k.key == 0x11) {
       break;
     }
     input_key(c, k);
-    // append_output(q,tmp, n);
-    // execute(q);
-    // reset_queue(q);
+
+    // printf("read %lu: ", n);
+    // for(unsigned int i = 0; i < n; i++) {
+    //   printf("b[%i] = 0x%.2hhx, ", i, tmp[i]);
+    // }
+    // printf("\n");
+    //
+    // printf("ascii = %d, key = %c, nkey = %08x\n", k.ascii, k.key, k.nkey);
+
   }
   resetTermios();
 

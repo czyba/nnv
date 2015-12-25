@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <unistd.h>
+#include <stdio.h>
+
 typedef struct line_t {
   char* line;
   size_t length;
@@ -38,31 +41,31 @@ ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum 
   return in;
 }
 
-static inline int move_up_line(ed_in_t* in) {
+static inline void move_up_line(ed_in_t* in) {
   if(in->row == 0) {
-    return 0;
+    return;
   }
   in->row--;
   if(in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  return 1;
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline int move_down_line(ed_in_t* in) {
+static inline void move_down_line(ed_in_t* in) {
   if(in->row == in->num_lines - 1) {
-    return 0;
+    return;
   }
   in->row++;
   if(in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  return 1;
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline int move_back_character(ed_in_t* in) {
+static inline void move_back_character(ed_in_t* in) {
   if(in->row == 0 && in->column == 0) {
-    return 0;
+    return;
   }
   if(in->column > 0) {
     in->column--;
@@ -70,13 +73,12 @@ static inline int move_back_character(ed_in_t* in) {
     in->row--;
     in->column = in->lines[in->row].pos;
   }
-  return 1;
-
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline int move_forward_character(ed_in_t* in) {
+static inline void move_forward_character(ed_in_t* in) {
   if(in->row == in->num_lines - 1 && in->column == in->lines[in->row].pos) {
-    return 0;
+    return;
   }
   if(in->column < in->lines[in->row].pos) {
     in->column++;
@@ -84,31 +86,87 @@ static inline int move_forward_character(ed_in_t* in) {
     in->row++;
     in->column = 0;
   }
-  return 1;
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+}
+
+static inline void delete_at_cursor(ed_in_t* in) {
+  if((in->num_lines == 1 && in->lines[0].pos == 0) || //empty, nothing to delete
+     (in->row + 1 == in->num_lines && in->column == in->lines[in->row].pos)) { //or last character of file
+    return;
+  }
+  if(in->column != in->lines[in->row].pos) {
+    //just delete that character and move everything back!
+    for(size_t i = in->column; i + 1 < in->lines[in->row].pos; i++) {
+      in->lines[in->row].line[i] = in->lines[in->row].line[i + 1];
+    }
+    //Copy \n if it exists...
+    if(in->row + 1 != in->num_lines) {
+      in->lines[in->row].line[in->lines[in->row].pos - 1] = in->lines[in->row].line[in->lines[in->row].pos];
+    }
+    in->lines[in->row].pos--;
+    //Make line buffer smaller if necessary
+    if((in->lines[in->row].pos > 0 && (in->lines[in->row].pos << 1) <= in->lines[in->row].length && in->row + 1 == in->num_lines) || //Last line
+      (in->lines[in->row].pos > 0 && ((in->lines[in->row].pos + 1) << 1) <= in->lines[in->row].length && in->row + 1 != in->num_lines)) { //other lines
+      in->lines[in->row].length >>= 1;
+      in->lines[in->row].line = realloc(in->lines[in->row].line, in->lines[in->row].length);
+    }
+    in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_LINE);
+    return;
+  }
+  line_t* c_line = &in->lines[in->row];
+  line_t* d_line = &in->lines[in->row + 1];
+  size_t new_pos = c_line->pos + d_line->pos;
+  size_t new_length;
+  //1 merge line
+  if(in->row + 2 == in->num_lines) {
+    //Last line is somewhat special
+    new_length = next_pow_2(new_pos);
+  } else {
+    new_length = next_pow_2(new_pos + 1);
+  }
+  if(new_length > c_line->length) {
+    c_line->line = realloc(c_line->line, new_length);
+  }
+  c_line->length = new_length;
+  memcpy(c_line->line + c_line->pos, d_line->line, d_line->pos);
+  c_line->pos = new_pos;
+  if(in->row + 2 != in->num_lines) {
+    //Copy the \n
+    c_line->line[c_line->pos] = '\n';
+  }
+  //copy old lines
+  free(d_line->line);
+  for(size_t i = in->row + 1; i + 1 < in->num_lines; i++) {
+    in->lines[i] = in->lines[i+1];
+  }
+  //resize lines
+  in->num_lines--;
+  in->lines = realloc(in->lines, sizeof(line_t) * in->num_lines);
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_ALL);
 }
 
 void ed_non_ascii_input(ed_in_t* in, key_t k) {
-  int ret = 0;
   switch(k.nkey & KEY_MASK) {
     case UP: {
-      ret = move_up_line(in);
+      move_up_line(in);
       break;
     }
     case DOWN: {
-      ret = move_down_line(in);
+      move_down_line(in);
       break;
     }
     case RIGHT: {
-      ret = move_forward_character(in);
+      move_forward_character(in);
       break;
     }
     case LEFT: {
-      ret = move_back_character(in);
+      move_back_character(in);
       break;
     }
-  }
-  if(ret) {
-    in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+    case DEL: {
+      delete_at_cursor(in);
+      break;
+    }
   }
 }
 
