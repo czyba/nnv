@@ -110,6 +110,7 @@ void input_key(c_t* c, key_t k) {
     switch (k.key) {
     case ASCII_DC3: {
       ed_in_save_file(in);
+      break;
     }
     case ASCII_CR: {
       ed_in_input_LF(in);
