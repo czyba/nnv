@@ -1,17 +1,35 @@
 #include "view.h"
 #include "model.h"
 #include "termout.h"
+#include "screen.h"
 #include <stdlib.h>
 #include <string.h>
 #include <alloca.h>
 
 #include <stdio.h>
 
-typedef struct area_t {
-  size_t origin_x, origin_y;
-  size_t rows, columns;
-} area_t;
+/*
+ A file is (more or less) a two dimensional array of characters. We assume
+ it is a uniform grid. Therefore a file looks more or less like this:
 
+
+
+The variables file_x and file_y describe the top left corner of the view
+on top of the file. e.g. file_x = 1, file_y = 2 would imply:
+
+  c_1_1 c_1_2 c_1_3 c_1_4
+              -------------    <- file_x
+  c_2_1 c_2_2 | c_2_3 c_2_4
+  c_3_1 c_3_2 | c_3_3 c_3_4
+  c_4_1 c_4_2 | c_4_3 c_4_4
+              ^
+              file_y
+
+Therefore the character in the top left corner of the screen is c_2_3.
+
+The area describes the area of the physical screen we posess. It is similar
+to the file view.
+*/
 struct editor_view_t {
   area_t area;
   // Stores the top right position of the file
@@ -63,6 +81,10 @@ ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int
   ed->file_y = 0;
   ed_redraw_everything(ed);
   return ed;
+}
+
+inline ed_in_t* ed_get_model(ed_view_t* view) {
+  return view->in;
 }
 
 static int ed_adapt_to_input_position(ed_view_t* ed) {

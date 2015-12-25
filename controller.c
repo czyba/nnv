@@ -9,9 +9,6 @@
 
 struct controller_t {
   ed_view_t* ed_view;
-  ed_in_t* ed_in;
-
-  int rows, columns;
 };
 
 #include <stdio.h>
@@ -54,11 +51,11 @@ static void normalize_area(int rows, int columns){
 
 c_t* init_controller() {
   c_t* ret = malloc(sizeof(c_t));
-  ret->ed_in = init_editor_input(&call_back, ret);
+  ed_in_t* in = init_editor_input(&call_back, ret);
   int rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns);
-  ret->ed_view = ed_init_editor(ret->ed_in, 1, 1, rows, columns);
+  ret->ed_view = ed_init_editor(in, 5, 5, rows - 4, columns - 4);
   return ret;
 }
 
@@ -97,14 +94,14 @@ static void non_ascii_input(ed_in_t* in, key_t k) {
 
 
 void input_key(c_t* c, key_t k) {
-  ed_in_t* in = c->ed_in;
+  ed_in_t* in = ed_get_model(c->ed_view);
   if(k.ascii) {
     if(IS_PRINTABLE(k)) {
       ed_in_input_printable_character(in, k);
       return;
     }
     switch(k.key) {
-      case 0x0D: {
+      case ASCII_CR: {
         ed_in_input_LF(in);
         break;
       }
