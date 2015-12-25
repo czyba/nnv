@@ -44,7 +44,7 @@ static int ed_in_write_line(line_t* line, char* buf, size_t length) {
   }
   size_t new_length;
   size_t new_pos = line->pos + i;
-  if(buf[i] == '\n') {
+  if(i != length && buf[i - 1] == '\n') {
     new_length = next_pow_2(new_pos + 1);
   } else {
     new_length = next_pow_2(new_pos);
@@ -55,14 +55,15 @@ static int ed_in_write_line(line_t* line, char* buf, size_t length) {
   memcpy(line->line + line->pos, buf, i);
   line->length = new_length;
   line->pos = new_pos;
-  if(buf[i] == '\n'){
+  if(buf[i - 1] == '\n'){
+    line->pos--;
     i = -i;
   }
   return i;
 }
 
 void ed_in_init_file(ed_in_t* in, char* filename) {
-  in->fd = open(filename, O_CREAT | O_RDWR | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
+  in->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
   if(in->fd < 0) {
     return;
   }
@@ -78,7 +79,7 @@ void ed_in_init_file(ed_in_t* in, char* filename) {
       int tmp = ed_in_write_line(line, buf + i, chars_read - i);
       if(tmp < 0) {
         in->num_lines++;
-        in->lines = realloc(in->lines, in->num_lines);
+        in->lines = realloc(in->lines, in->num_lines * sizeof(line_t));
         line = &in->lines[in->num_lines - 1];
         line->pos = 0;
         line->length = 1;
