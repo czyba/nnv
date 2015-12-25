@@ -89,6 +89,16 @@ static inline void move_forward_character(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
+static inline void move_home(ed_in_t* in) {
+  in->column = 0;
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+}
+
+static inline void move_end(ed_in_t* in) {
+  in->column = in->lines[in->row].pos;
+  in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
+}
+
 static inline void delete_at_cursor(ed_in_t* in) {
   if((in->num_lines == 1 && in->lines[0].pos == 0) || //empty, nothing to delete
      (in->row + 1 == in->num_lines && in->column == in->lines[in->row].pos)) { //or last character of file
@@ -147,24 +157,32 @@ static inline void delete_at_cursor(ed_in_t* in) {
 
 void ed_non_ascii_input(ed_in_t* in, key_t k) {
   switch(k.nkey & KEY_MASK) {
-    case UP: {
+    case KEY_UP: {
       move_up_line(in);
       break;
     }
-    case DOWN: {
+    case KEY_DOWN: {
       move_down_line(in);
       break;
     }
-    case RIGHT: {
+    case KEY_RIGHT: {
       move_forward_character(in);
       break;
     }
-    case LEFT: {
+    case KEY_LEFT: {
       move_back_character(in);
       break;
     }
-    case DEL: {
+    case KEY_DEL: {
       delete_at_cursor(in);
+      break;
+    }
+    case KEY_HOME: {
+      move_home(in);
+      break;
+    }
+    case KEY_END: {
+      move_end(in);
       break;
     }
   }

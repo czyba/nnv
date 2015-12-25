@@ -21,12 +21,20 @@ static key_t parse_CSI(unsigned char* a, size_t len) {
       }
       return key;
     }
+    case 'F': {
+      key.nkey = KEY_END;
+      return key;
+    }
+    case 'H': {
+      key.nkey = KEY_HOME;
+      return key;
+    }
     default:
       break;
   }
   if(len == 4 && a[2] == '3' && a[3] == '~') {
     //DEL
-    key.nkey = DEL;
+    key.nkey = KEY_DEL;
   }
   return key;
 }

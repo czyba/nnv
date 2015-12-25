@@ -12,11 +12,13 @@
 #define MOD_RALT  0x80000000
 
 #define KEY_MASK    0x0FFFFFFF
-#define UP          0x00000001
-#define DOWN        0x00000002
-#define RIGHT       0x00000003
-#define LEFT        0x00000004
-#define DEL         0x00000005
+#define KEY_UP          0x00000001
+#define KEY_DOWN        0x00000002
+#define KEY_RIGHT       0x00000003
+#define KEY_LEFT        0x00000004
+#define KEY_DEL         0x00000005
+#define KEY_HOME        0x00000006
+#define KEY_END         0x00000007
 
 typedef struct key_type_t {
   int ascii;
