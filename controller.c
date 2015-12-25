@@ -62,9 +62,61 @@ c_t* init_controller() {
   return ret;
 }
 
-void input_key(c_t* c, key_t key) {
-  //Check globals
+static void ed_non_ascii_input(ed_in_t* in, key_t k) {
+  switch(k.nkey & KEY_MASK) {
+    case KEY_UP: {
+      ed_move_up_line(in);
+      break;
+    }
+    case KEY_DOWN: {
+      ed_move_down_line(in);
+      break;
+    }
+    case KEY_RIGHT: {
+      ed_move_forward_character(in);
+      break;
+    }
+    case KEY_LEFT: {
+      ed_move_back_character(in);
+      break;
+    }
+    case KEY_DEL: {
+      ed_delete_at_cursor(in);
+      break;
+    }
+    case KEY_HOME: {
+      ed_move_home(in);
+      break;
+    }
+    case KEY_END: {
+      ed_move_end(in);
+      break;
+    }
+  }
+}
 
-  //Find active area and notify the respective model
-  ed_input(c->ed_in, key);
+
+void input_key(c_t* c, key_t k) {
+  ed_in_t* in = c->ed_in;
+  if(k.ascii) {
+    if(IS_PRINTABLE(k)) {
+      ed_input_printable_character(in, k);
+      return;
+    }
+    switch(k.key) {
+      case 0x0D: {
+        ed_input_LF(in);
+        break;
+      }
+      case ASCII_DEL: {
+        if(!ed_at_origin(in)) {
+          ed_move_back_character(in);
+          ed_delete_at_cursor(in);
+        }
+        break;
+      }
+    }
+    return;
+  }
+  ed_non_ascii_input(in, k);
 }

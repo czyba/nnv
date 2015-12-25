@@ -41,7 +41,7 @@ ed_in_t* init_editor_input(void (*controller_call_back) (void* controller, enum 
   return in;
 }
 
-static inline void move_up_line(ed_in_t* in) {
+void ed_move_up_line(ed_in_t* in) {
   if(in->row == 0) {
     return;
   }
@@ -52,7 +52,7 @@ static inline void move_up_line(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void move_down_line(ed_in_t* in) {
+void ed_move_down_line(ed_in_t* in) {
   if(in->row == in->num_lines - 1) {
     return;
   }
@@ -63,7 +63,7 @@ static inline void move_down_line(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void move_back_character(ed_in_t* in) {
+void ed_move_back_character(ed_in_t* in) {
   if(in->row == 0 && in->column == 0) {
     return;
   }
@@ -76,7 +76,7 @@ static inline void move_back_character(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void move_forward_character(ed_in_t* in) {
+void ed_move_forward_character(ed_in_t* in) {
   if(in->row == in->num_lines - 1 && in->column == in->lines[in->row].pos) {
     return;
   }
@@ -89,17 +89,17 @@ static inline void move_forward_character(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void move_home(ed_in_t* in) {
+void ed_move_home(ed_in_t* in) {
   in->column = 0;
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void move_end(ed_in_t* in) {
+void ed_move_end(ed_in_t* in) {
   in->column = in->lines[in->row].pos;
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_CURSOR);
 }
 
-static inline void delete_at_cursor(ed_in_t* in) {
+void ed_delete_at_cursor(ed_in_t* in) {
   if((in->num_lines == 1 && in->lines[0].pos == 0) || //empty, nothing to delete
      (in->row + 1 == in->num_lines && in->column == in->lines[in->row].pos)) { //or last character of file
     return;
@@ -156,40 +156,7 @@ static inline void delete_at_cursor(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_ALL);
 }
 
-void ed_non_ascii_input(ed_in_t* in, key_t k) {
-  switch(k.nkey & KEY_MASK) {
-    case KEY_UP: {
-      move_up_line(in);
-      break;
-    }
-    case KEY_DOWN: {
-      move_down_line(in);
-      break;
-    }
-    case KEY_RIGHT: {
-      move_forward_character(in);
-      break;
-    }
-    case KEY_LEFT: {
-      move_back_character(in);
-      break;
-    }
-    case KEY_DEL: {
-      delete_at_cursor(in);
-      break;
-    }
-    case KEY_HOME: {
-      move_home(in);
-      break;
-    }
-    case KEY_END: {
-      move_end(in);
-      break;
-    }
-  }
-}
-
-static void ed_input_printable_character(ed_in_t* in, key_t k) {
+void ed_input_printable_character(ed_in_t* in, key_t k) {
   line_t* line = &in->lines[in->row];
   if(line->length == line->pos) {
     line->length <<= 1;
@@ -204,7 +171,7 @@ static void ed_input_printable_character(ed_in_t* in, key_t k) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_LINE);
 }
 
-static void ed_input_LF(ed_in_t* in) {
+void ed_input_LF(ed_in_t* in) {
   in->num_lines++;
   in->lines = realloc(in->lines, in->num_lines * sizeof(line_t));
   for(size_t i = in->num_lines - 1; in->row < i - 1; i--) {
@@ -228,32 +195,11 @@ static void ed_input_LF(ed_in_t* in) {
   in->controller_call_back((c_t*)in->controller, EDITOR_INPUT_ALL);
 }
 
-void ed_input(ed_in_t* in, key_t k) {
-  #pragma message "Move method into controller"
-  if(k.ascii) {
-    if(IS_PRINTABLE(k)) {
-      ed_input_printable_character(in, k);
-      return;
-    }
-    switch(k.key) {
-      case 0x0D: {
-        ed_input_LF(in);
-        break;
-      }
-      case ASCII_DEL: {
-        if(in->row != 0 || in->column != 0) {
-          move_back_character(in);
-          delete_at_cursor(in);
-        }
-        break;
-      }
-    }
-    return;
-  }
-  ed_non_ascii_input(in, k);
+int ed_at_origin(ed_in_t* in) {
+  return (in->row == 0 && in->column == 0);
 }
 
-void fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_t length, char fill_character) {
+void ed_fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_t length, char fill_character) {
   if(in->num_lines <= row) {
     memset(line_to_fill, fill_character, length);
     return;

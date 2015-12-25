@@ -21,7 +21,7 @@ struct editor_view_t {
 
 static void ed_append_line(tcq_t* q, ed_in_t* in, size_t row, size_t column, size_t length) {
   char* a = alloca(length);
-  fill_line(in, a, row, column, length, ' ');
+  ed_fill_line(in, a, row, column, length, ' ');
   append_output(q, a, length);
 }
 
