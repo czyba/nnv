@@ -34,7 +34,7 @@ typedef struct editor_input_t {
   void* controller;
 } ed_in_t;
 
-static int ed_in_write_line(line_t* line, char* buf, size_t length) {
+static int ed_in_read_line(line_t* line, char* buf, size_t length) {
   size_t i = 0;
   for(; i < length; i++) {
     if(buf[i] == '\n') {
@@ -62,7 +62,7 @@ static int ed_in_write_line(line_t* line, char* buf, size_t length) {
   return i;
 }
 
-void ed_in_init_file(ed_in_t* in, char* filename) {
+void ed_in_load_file(ed_in_t* in, char* filename) {
   in->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
   if(in->fd < 0) {
     return;
@@ -76,7 +76,7 @@ void ed_in_init_file(ed_in_t* in, char* filename) {
     }
     int i = 0;
     while(i < chars_read) {
-      int tmp = ed_in_write_line(line, buf + i, chars_read - i);
+      int tmp = ed_in_read_line(line, buf + i, chars_read - i);
       if(tmp < 0) {
         in->num_lines++;
         in->lines = realloc(in->lines, in->num_lines * sizeof(line_t));
