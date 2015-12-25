@@ -3,9 +3,9 @@
 #include <string.h> //memset
 
 #include "controller.h" //controller methods
-#include "view.h" //view methods
-#include "model.h" // model methods
-#include "termout.h" // terminal methods
+#include "view.h"       //view methods
+#include "model.h"      // model methods
+#include "termout.h"    // terminal methods
 
 struct controller_t {
   ed_view_t* ed_view;
@@ -13,35 +13,36 @@ struct controller_t {
 
 #include <stdio.h>
 
-static void call_back (void* controller, enum CALLBACK_TYPE callback_type) {
+static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
-  if(callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE || callback_type == EDITOR_INPUT_CURSOR) {
+  if (callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE ||
+      callback_type == EDITOR_INPUT_CURSOR) {
     ed_process_input_changed(c->ed_view, callback_type);
   }
 }
 
-static void get_area_size(int *rows, int* columns){
+static void get_area_size(int* rows, int* columns) {
   tcq_t* q = alloc_command_queue(32);
-  int olines,ocolumns;
-  //Temporarily store our positon
+  int olines, ocolumns;
+  // Temporarily store our positon
   get_cursor_position(&olines, &ocolumns);
-  //Go to the bottom right corner
-  append_move_cursor(q,9999,9999);
+  // Go to the bottom right corner
+  append_move_cursor(q, 9999, 9999);
   execute(q);
   reset_queue(q);
 
-  //Get position
-  get_cursor_position(rows,columns);
+  // Get position
+  get_cursor_position(rows, columns);
 
-  //Go back to our starting position
+  // Go back to our starting position
   append_move_cursor(q, olines, 1);
   execute(q);
   free_command_queue(q);
 }
 
-static void normalize_area(int rows, int columns){
+static void normalize_area(int rows, int columns) {
   tcq_t* q = alloc_command_queue(rows * columns * 2);
-  char* a = (char*)alloca(rows * columns);
+  char* a = (char*) alloca(rows * columns);
   memset(a, ' ', rows * columns);
   append_output(q, a, rows * columns);
   append_move_cursor(q, 1, 1);
@@ -60,58 +61,57 @@ c_t* init_controller() {
 }
 
 static void non_ascii_input(ed_in_t* in, key_t k) {
-  switch(k.nkey & KEY_MASK) {
-    case KEY_UP: {
-      ed_in_move_up_line(in);
-      break;
-    }
-    case KEY_DOWN: {
-      ed_in_move_down_line(in);
-      break;
-    }
-    case KEY_RIGHT: {
-      ed_in_move_forward_character(in);
-      break;
-    }
-    case KEY_LEFT: {
-      ed_in_move_back_character(in);
-      break;
-    }
-    case KEY_DEL: {
-      ed_in_delete_at_cursor(in);
-      break;
-    }
-    case KEY_HOME: {
-      ed_in_move_home(in);
-      break;
-    }
-    case KEY_END: {
-      ed_in_move_end(in);
-      break;
-    }
+  switch (k.nkey & KEY_MASK) {
+  case KEY_UP: {
+    ed_in_move_up_line(in);
+    break;
+  }
+  case KEY_DOWN: {
+    ed_in_move_down_line(in);
+    break;
+  }
+  case KEY_RIGHT: {
+    ed_in_move_forward_character(in);
+    break;
+  }
+  case KEY_LEFT: {
+    ed_in_move_back_character(in);
+    break;
+  }
+  case KEY_DEL: {
+    ed_in_delete_at_cursor(in);
+    break;
+  }
+  case KEY_HOME: {
+    ed_in_move_home(in);
+    break;
+  }
+  case KEY_END: {
+    ed_in_move_end(in);
+    break;
+  }
   }
 }
 
-
 void input_key(c_t* c, key_t k) {
   ed_in_t* in = ed_get_model(c->ed_view);
-  if(k.ascii) {
-    if(IS_PRINTABLE(k)) {
+  if (k.ascii) {
+    if (IS_PRINTABLE(k)) {
       ed_in_input_printable_character(in, k);
       return;
     }
-    switch(k.key) {
-      case ASCII_CR: {
-        ed_in_input_LF(in);
-        break;
+    switch (k.key) {
+    case ASCII_CR: {
+      ed_in_input_LF(in);
+      break;
+    }
+    case ASCII_DEL: {
+      if (!ed_in_at_origin(in)) {
+        ed_in_move_back_character(in);
+        ed_in_delete_at_cursor(in);
       }
-      case ASCII_DEL: {
-        if(!ed_in_at_origin(in)) {
-          ed_in_move_back_character(in);
-          ed_in_delete_at_cursor(in);
-        }
-        break;
-      }
+      break;
+    }
     }
     return;
   }

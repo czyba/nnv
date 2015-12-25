@@ -18,13 +18,13 @@
 /* Initialize new terminal i/o settings */
 static struct termios old, new1;
 void initTermios() {
-    tcgetattr(0, &old); /* grab old terminal i/o settings */
-    new1 = old; /* make new settings same as old settings */
-    //Disable buffered IO
-    new1.c_lflag &= ~(ICANON | ECHO | ECHOK | ECHOE | ECHONL | ISIG | IEXTEN);
-    new1.c_iflag |= IGNBRK;
-    new1.c_iflag &= ~(ISTRIP | INLCR | ICRNL | IXON | IXOFF);
-    tcsetattr(0, TCSANOW, &new1); /* use these new terminal i/o settings now */
+  tcgetattr(0, &old); /* grab old terminal i/o settings */
+  new1 = old;         /* make new settings same as old settings */
+  //Disable buffered IO
+  new1.c_lflag &= ~(ICANON | ECHO | ECHOK | ECHOE | ECHONL | ISIG | IEXTEN);
+  new1.c_iflag |= IGNBRK;
+  new1.c_iflag &= ~(ISTRIP | INLCR | ICRNL | IXON | IXOFF);
+  tcsetattr(0, TCSANOW, &new1); /* use these new terminal i/o settings now */
 }
 
 void resetTermios() {
@@ -39,10 +39,10 @@ int main() {
 
   unsigned char tmp[10];
   ssize_t n;
-  while(1) {
+  while (1) {
     n = read(0, tmp, 10);
     key_t k = parse_key(tmp, n);
-    if(k.ascii && k.key == 0x11) {
+    if (k.ascii && k.key == 0x11) {
       break;
     }
     input_key(c, k);
@@ -54,7 +54,6 @@ int main() {
     // printf("\n");
     //
     // printf("ascii = %d, key = %c, nkey = %08x\n", k.ascii, k.key, k.nkey);
-
   }
   resetTermios();
 

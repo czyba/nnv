@@ -47,25 +47,25 @@ static void ed_redraw_everything(ed_view_t* ed) {
   size_t in_row, in_col;
   ed_in_t* in = ed->in;
   ed_in_get_cursor_position(in, &in_row, &in_col);
-  #pragma message "heuristic is for small terminals SHIT"
+#pragma message "heuristic is for small terminals SHIT"
   tcq_t* q = alloc_command_queue(ed->area.rows * ed->area.columns * 2);
   append_move_cursor(q, ed->area.origin_x, ed->area.origin_y);
   append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
-  for(size_t i = 0; i < ed->area.rows; i++) {
+  for (size_t i = 0; i < ed->area.rows; i++) {
     ed_append_line(q, in, ed->file_x + i, ed->file_y, ed->area.columns);
     append_move_cursor(q, ed->area.origin_x + i + 1, ed->area.origin_y);
   }
-  append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+  append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
   execute(q);
   free_command_queue(q);
 }
 
-static void ed_move_cursor(ed_view_t* ed){
+static void ed_move_cursor(ed_view_t* ed) {
   size_t in_row, in_col;
   ed_in_t* in = ed->in;
   tcq_t* q = alloc_command_queue(32);
   ed_in_get_cursor_position(in, &in_row, &in_col);
-  append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+  append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
   execute(q);
   free_command_queue(q);
 }
@@ -92,17 +92,17 @@ static int ed_adapt_to_input_position(ed_view_t* ed) {
   size_t in_row, in_col;
   int ret = 0;
   ed_in_get_cursor_position(in, &in_row, &in_col);
-  if(ed->file_x > in_row) {
+  if (ed->file_x > in_row) {
     ed->file_x = in_row;
     ret = 1;
-  } else if(ed->file_x + ed->area.rows <= in_row + 1) {
+  } else if (ed->file_x + ed->area.rows <= in_row + 1) {
     ed->file_x = in_row - ed->area.rows + 1;
     ret = 1;
   }
-  if(ed->file_y > in_col) {
+  if (ed->file_y > in_col) {
     ed->file_y = in_col;
     ret = 1;
-  } else if(ed->file_y + ed->area.columns < in_col + 1) {
+  } else if (ed->file_y + ed->area.columns < in_col + 1) {
     ed->file_y = in_col - ed->area.columns + 1;
     ret = 1;
   }
@@ -110,7 +110,7 @@ static int ed_adapt_to_input_position(ed_view_t* ed) {
 }
 
 static void ed_process_cursor_changed(ed_view_t* ed) {
-  if(ed_adapt_to_input_position(ed)) {
+  if (ed_adapt_to_input_position(ed)) {
     ed_redraw_everything(ed);
   } else {
     ed_move_cursor(ed);
@@ -118,27 +118,27 @@ static void ed_process_cursor_changed(ed_view_t* ed) {
 }
 
 static void ed_process_line_changed(ed_view_t* ed) {
-  if(ed_adapt_to_input_position(ed)) {
+  if (ed_adapt_to_input_position(ed)) {
     ed_redraw_everything(ed);
   } else {
     size_t in_row, in_col;
     ed_in_t* in = ed->in;
     ed_in_get_cursor_position(in, &in_row, &in_col);
     tcq_t* q = alloc_command_queue(ed->area.columns + 64);
-    append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y);
+    append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y);
     size_t affected_row = in_row;
     append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
     ed_append_line(q, in, affected_row, ed->file_y, ed->area.columns);
-    append_move_cursor(q,  ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+    append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
     execute(q);
     free_command_queue(q);
   }
 }
 
-void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type){
-  if(type == EDITOR_INPUT_CURSOR) {
+void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type) {
+  if (type == EDITOR_INPUT_CURSOR) {
     ed_process_cursor_changed(ed);
-  } else if (type == EDITOR_INPUT_LINE){
+  } else if (type == EDITOR_INPUT_LINE) {
     ed_process_line_changed(ed);
   } else if (type == EDITOR_INPUT_ALL) {
     ed_adapt_to_input_position(ed);

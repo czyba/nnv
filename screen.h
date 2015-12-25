@@ -6,6 +6,4 @@ typedef struct area_t {
   size_t rows, columns;
 } area_t;
 
-
-
 #endif
