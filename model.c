@@ -102,7 +102,7 @@ void ed_in_save_file(ed_in_t* in) {
   for (size_t i = 0; i < in->num_lines; i++) {
     write(in->fd, in->lines[i].line, in->lines[i].pos);
     if (i != in->num_lines - 1) {
-      char c = ASCII_CR;
+      char c = ASCII_LF;
       write(in->fd, &c, 1);
     }
   }
