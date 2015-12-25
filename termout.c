@@ -42,7 +42,7 @@ int append_CSI(tcq_t* q) {
   if (!CAN_INSERT(q,2)) {
     return -1;
   }
-  q->buf[q->pos++] = ESC;
+  q->buf[q->pos++] = ASCII_ESC;
   q->buf[q->pos++] = '[';
   return 2;
 }
@@ -341,7 +341,7 @@ int print_queue(tcq_t* queue) {
     char c[2];
     c[0] = queue->buf[i];
     c[1] = 0;
-    if(c[0] == ESC) {
+    if(c[0] == ASCII_ESC) {
       printf("pos = %d, ESC\n", (int)i);
     } else {
       printf("pos = %i, %s\n",(int) i, c);

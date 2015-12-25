@@ -210,17 +210,27 @@ static void ed_input_LF(ed_in_t* in) {
 }
 
 void ed_input(ed_in_t* in, key_t k) {
-  if(IS_PRINTABLE(k)) {
-    ed_input_printable_character(in, k);
-    return;
-  } else if (k.ascii) {
-    if(k.key == 0x0D) {
-      ed_input_LF(in);
+  if(k.ascii) {
+    if(IS_PRINTABLE(k)) {
+      ed_input_printable_character(in, k);
+      return;
     }
-  } else if(!k.ascii) {
-    ed_non_ascii_input(in, k);
+    switch(k.key) {
+      case 0x0D: {
+        ed_input_LF(in);
+        break;
+      }
+      case ASCII_DEL: {
+        if(in->row != 0 || in->column != 0) {
+          move_back_character(in);
+          delete_at_cursor(in);
+        }
+        break;
+      }
+    }
     return;
   }
+  ed_non_ascii_input(in, k);
 }
 
 void fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column, size_t length, char fill_character) {

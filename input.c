@@ -47,7 +47,7 @@ key_t parse_key(unsigned char* a, size_t len) {
     key.key = a[0];
     return key;
   }
-  if(a[0] == ESC) {
+  if(a[0] == ASCII_ESC) {
     return parse_ESC(a, len);
   }
   key_t key;
