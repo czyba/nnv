@@ -56,8 +56,14 @@ c_t* init_controller() {
   int rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns);
-  ret->ed_view = ed_init_editor(in, 5, 5, rows - 4, columns - 4);
+  ret->ed_view = ed_init_editor(in, 1, 1, rows, columns);
   return ret;
+}
+
+void free_controller(c_t* c) {
+  ed_reset(c->ed_view);
+  ed_free(c->ed_view);
+  free(c);
 }
 
 static void non_ascii_input(ed_in_t* in, key_t k) {

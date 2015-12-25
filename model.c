@@ -41,6 +41,14 @@ ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum C
   return in;
 }
 
+void ed_in_free(ed_in_t* in) {
+  for (size_t i = 0; i < in->num_lines; i++) {
+    free(in->lines[i].line);
+  }
+  free(in->lines);
+  free(in);
+}
+
 void ed_in_move_up_line(ed_in_t* in) {
   if (in->row == 0) {
     return;

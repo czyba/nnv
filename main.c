@@ -55,6 +55,7 @@ int main() {
     //
     // printf("ascii = %d, key = %c, nkey = %08x\n", k.ascii, k.key, k.nkey);
   }
+  free_controller(c);
   resetTermios();
 
   return 0;

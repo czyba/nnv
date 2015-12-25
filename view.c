@@ -83,6 +83,25 @@ ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int
   return ed;
 }
 
+void ed_free(ed_view_t* view) {
+  ed_in_free(view->in);
+  free(view);
+}
+
+void ed_reset(ed_view_t* view) {
+  tcq_t* q = alloc_command_queue(view->area.rows * (view->area.columns + 20) + 20);
+  char* buf = alloca(view->area.columns);
+  memset(buf, ' ', view->area.columns);
+  append_options(q, FONT_DEFAULT, NO_OPTION, NO_OPTION);
+  for (size_t i = 0; i < view->area.rows; i++) {
+    append_move_cursor(q, view->area.origin_x + i, view->area.origin_y);
+    append_output(q, buf, view->area.columns);
+  }
+  append_move_cursor(q, view->area.origin_x, view->area.origin_y);
+  execute(q);
+  free_command_queue(q);
+}
+
 inline ed_in_t* ed_get_model(ed_view_t* view) {
   return view->in;
 }
