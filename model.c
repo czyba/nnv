@@ -131,6 +131,7 @@ static inline void delete_at_cursor(ed_in_t* in) {
   if(in->row + 2 == in->num_lines) {
     //Last line is somewhat special
     new_length = next_pow_2(new_pos);
+    new_length = new_length ? new_length : 1;
   } else {
     new_length = next_pow_2(new_pos + 1);
   }
