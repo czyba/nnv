@@ -9,8 +9,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 #include <unistd.h>
+#include <sys/types.h>
+
 #include <stdio.h>
 
 typedef struct line_t {
@@ -36,26 +37,26 @@ typedef struct editor_input_t {
 
 static int ed_in_read_line(line_t* line, char* buf, size_t length) {
   size_t i = 0;
-  for(; i < length; i++) {
-    if(buf[i] == '\n') {
+  for (; i < length; i++) {
+    if (buf[i] == '\n') {
       i++;
       break;
     }
   }
   size_t new_length;
   size_t new_pos = line->pos + i;
-  if(i != length && buf[i - 1] == '\n') {
+  if (i != length && buf[i - 1] == '\n') {
     new_length = next_pow_2(new_pos + 1);
   } else {
     new_length = next_pow_2(new_pos);
   }
-  if(new_length > line->length) {
+  if (new_length > line->length) {
     line->line = realloc(line->line, new_length);
   }
   memcpy(line->line + line->pos, buf, i);
   line->length = new_length;
   line->pos = new_pos;
-  if(buf[i - 1] == '\n'){
+  if (buf[i - 1] == '\n') {
     line->pos--;
     i = -i;
   }
@@ -63,21 +64,21 @@ static int ed_in_read_line(line_t* line, char* buf, size_t length) {
 }
 
 void ed_in_load_file(ed_in_t* in, char* filename) {
-  in->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
-  if(in->fd < 0) {
+  in->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  if (in->fd < 0) {
     return;
   }
   char buf[4096];
   int chars_read = read(in->fd, buf, sizeof(buf));
   line_t* line = &in->lines[0];
-  while(chars_read >= 0) {
-    if(chars_read == 0) {
+  while (chars_read >= 0) {
+    if (chars_read == 0) {
       break;
     }
     int i = 0;
-    while(i < chars_read) {
+    while (i < chars_read) {
       int tmp = ed_in_read_line(line, buf + i, chars_read - i);
-      if(tmp < 0) {
+      if (tmp < 0) {
         in->num_lines++;
         in->lines = realloc(in->lines, in->num_lines * sizeof(line_t));
         line = &in->lines[in->num_lines - 1];
@@ -92,6 +93,21 @@ void ed_in_load_file(ed_in_t* in, char* filename) {
   }
 }
 
+void ed_in_save_file(ed_in_t* in) {
+  if (in->fd < 0) {
+    return;
+  }
+  lseek(in->fd, 0, SEEK_SET);
+  ftruncate(in->fd, 0);
+  for (size_t i = 0; i < in->num_lines; i++) {
+    write(in->fd, in->lines[i].line, in->lines[i].pos);
+    if (i != in->num_lines - 1) {
+      char c = ASCII_CR;
+      write(in->fd, &c, 1);
+    }
+  }
+}
+
 ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum CALLBACK_TYPE callback_type), void* controller) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
   in->row = 0;
@@ -101,6 +117,8 @@ ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum C
   in->lines[0].line = malloc(sizeof(char));
   in->lines[0].length = 1;
   in->lines[0].pos = 0;
+  in->fd = -1;
+  in->file_name = NULL;
   in->controller_call_back = controller_call_back;
   in->controller = controller;
   return in;
@@ -111,6 +129,9 @@ void ed_in_free(ed_in_t* in) {
     free(in->lines[i].line);
   }
   free(in->lines);
+  if (in->fd >= 0) {
+    close(in->fd);
+  }
   free(in);
 }
 

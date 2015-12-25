@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-O2 -ggdb -Wall -Wextra -Werror -std=c11
+CFLAGS=-O2 -ggdb -Wall -Wextra -Werror -std=c11 -D_POSIX_C_SOURCE=200112L
 
 FORMAT=clang-format
 
