@@ -47,7 +47,7 @@ int append_CSI(tcq_t* q) {
   return 2;
 }
 
-int append_font_option(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit) {
+int append_font_option(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char digit, char digit_off) {
   if (!(option & BOTH_MASK)) {
     return 0;
   }
@@ -60,7 +60,7 @@ int append_font_option(tcq_t* q, int option, int BOTH_MASK, int OPTION_OFF, char
       return -1;
     }
     q->buf[q->pos++] = '2';
-    q->buf[q->pos++] = digit;
+    q->buf[q->pos++] = digit_off;
     return 2;
   }
   if (!CAN_INSERT(q, 1)) {
@@ -192,16 +192,16 @@ int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
   }
   int ret = 0;
   int written = 0;
-  ret = append_font_option(q, font_options & FONT_BOLD_MASK, FONT_BOLD_MASK, FONT_BOLD_OFF, '1');
+  ret = append_font_option(q, font_options, FONT_BOLD_MASK, FONT_BOLD_OFF, '1' , '2');
   DEFAULT_FONT_APPEND_ACTION(q, ret, origPos)
 
-  ret = append_font_option(q, font_options & FONT_BRIGHT_MASK, FONT_BRIGHT_MASK, FONT_BRIGHT_OFF, '2');
+  ret = append_font_option(q, font_options, FONT_BRIGHT_MASK, FONT_BRIGHT_OFF, '2', '2');
   DEFAULT_FONT_APPEND_ACTION(q, ret, origPos)
 
-  ret = append_font_option(q, font_options & FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_OFF, '4');
+  ret = append_font_option(q, font_options, FONT_UNDERSCORE_MASK, FONT_UNDERSCORE_OFF, '4', '4');
   DEFAULT_FONT_APPEND_ACTION(q, ret, origPos)
 
-  ret = append_font_option(q, font_options & FONT_BLINK_MASK, FONT_BLINK_MASK, FONT_BLINK_OFF, '5');
+  ret = append_font_option(q, font_options, FONT_BLINK_MASK, FONT_BLINK_OFF, '5', '5');
   DEFAULT_FONT_APPEND_ACTION(q, ret, origPos)
   return written;
 }
