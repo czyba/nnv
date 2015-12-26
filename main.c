@@ -31,11 +31,17 @@ void resetTermios() {
   tcsetattr(0, TCSANOW, &old); /* resetting terminal */
 }
 
-int main() {
-  initTermios();
+int main(int argc, char** argv) {
+  if(argc == 1) {
+    printf("Nothing to open\n");
+    return 0;
+  }
 
+  initTermios();
   c_t* c = init_controller();
   (void) c;
+
+  open_file(c, argv[argc -1]);
 
   unsigned char tmp[10];
   ssize_t n;

@@ -9,7 +9,9 @@
 #include "screen.h"
 
 struct controller_t {
-  ed_view_t* ed_view;
+  ed_view_t** ed_view;
+  size_t num_files;
+  int active_index;
 };
 
 #include <stdio.h>
@@ -18,7 +20,7 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
   if (callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE ||
       callback_type == EDITOR_INPUT_CURSOR) {
-    ed_process_input_changed(c->ed_view, callback_type);
+    ed_process_input_changed(c->ed_view[c->active_index], callback_type);
   }
 }
 
@@ -52,24 +54,37 @@ static void normalize_area(int rows, int columns) {
 }
 
 c_t* init_controller() {
-  c_t* ret = malloc(sizeof(c_t));
-  ed_in_t* in = init_editor_input(&call_back, ret);
+  c_t* c = malloc(sizeof(c_t));
+  c->ed_view = 0;
+  c->num_files = 0;
+  c->active_index = -1;
   int rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns);
-  ed_in_load_file(in, "controller.c");
-  ret->ed_view = ed_init_editor(in, 1, 1, rows, columns);
-  return ret;
+  return c;
 }
 
 void free_controller(c_t* c) {
-  ed_reset(c->ed_view);
-  ed_free(c->ed_view);
+  for(size_t i = 0; i < c->num_files; i++) {
+    ed_reset(c->ed_view[i]);
+    ed_free(c->ed_view[i]);
+  }
   free(c);
 }
 
+void open_file(c_t* c, char* filename) {
+  c->num_files++;
+  c->ed_view = realloc(c->ed_view, c->num_files * sizeof(ed_view_t*));
+  ed_in_t* in = init_editor_input(&call_back, c);
+  ed_in_load_file(in, filename);
+  int rows, columns;
+  get_area_size(&rows, &columns);
+  c->ed_view[c->num_files - 1] = ed_init_editor(in, 1, 1, rows, columns);
+  c->active_index = c->num_files - 1;
+}
+
 static void non_ascii_input(c_t* c, key_t k) {
-  ed_view_t* view = c->ed_view;
+  ed_view_t* view = c->ed_view[c->active_index];
   ed_in_t* in = ed_get_model(view);
   switch (k.nkey & KEY_MASK) {
   case KEY_UP: {
@@ -114,7 +129,7 @@ static void non_ascii_input(c_t* c, key_t k) {
 }
 
 void input_key(c_t* c, key_t k) {
-  ed_in_t* in = ed_get_model(c->ed_view);
+  ed_in_t* in = ed_get_model(c->ed_view[c->active_index]);
   if (k.ascii) {
     if (IS_PRINTABLE(k)) {
       ed_in_input_printable_character(in, k);
