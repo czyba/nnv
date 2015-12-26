@@ -49,15 +49,15 @@ int tab_in_register_tab(tab_in_t* in, char* relative_file_path) {
 }
 
 void tab_in_unregister_tab(tab_in_t* in) {
-  if(in->num_tabs == 0) {
+  if (in->num_tabs == 0) {
     return;
   }
   ed_in_free(in->tabs[in->active_tab]);
-  for(size_t i = in->active_tab + 1; i < in->num_tabs; i++) {
+  for (size_t i = in->active_tab + 1; i < in->num_tabs; i++) {
     in->tabs[i - 1] = in->tabs[i];
   }
   in->num_tabs--;
-  if(in->active_tab == 0) {
+  if (in->active_tab == 0) {
     in->active_tab = 1;
   }
   in->active_tab = in->active_tab - 1;
@@ -97,7 +97,7 @@ size_t tab_get_num_names(tab_in_t* in) {
 }
 
 ed_in_t* tab_get_active_tab(tab_in_t* in) {
-  if(!in->num_tabs) {
+  if (!in->num_tabs) {
     return NULL;
   }
   return in->tabs[in->active_tab];

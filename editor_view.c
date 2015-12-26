@@ -43,7 +43,7 @@ struct editor_view_t {
 };
 
 static i_ref_t* ed_get_active_ref(ed_view_t* ed) {
-  if(ed->num_refs) {
+  if (ed->num_refs) {
     return &ed->refs[ed->active];
   }
   return NULL;
@@ -56,7 +56,7 @@ static void ed_append_line(tcq_t* q, ed_in_t* in, size_t row, size_t column, siz
 }
 
 static void ed_redraw_everything(ed_view_t* ed) {
-  if(!ed->num_refs) {
+  if (!ed->num_refs) {
     ed_reset(ed);
     return;
   }
@@ -99,15 +99,15 @@ ed_view_t* ed_init_editor(int origin_x, int origin_y, int rows, int columns) {
 }
 
 void ed_free(ed_view_t* view) {
-  if(view->num_refs){
+  if (view->num_refs) {
     free(view->refs);
   }
   free(view);
 }
 
 void ed_register_model(ed_view_t* view, ed_in_t* model) {
-  for(size_t i = 0; i < view->num_refs; i++) {
-    if(view->refs[i].in == model) {
+  for (size_t i = 0; i < view->num_refs; i++) {
+    if (view->refs[i].in == model) {
       return;
     }
   }
@@ -119,11 +119,11 @@ void ed_register_model(ed_view_t* view, ed_in_t* model) {
 }
 
 void ed_set_model_active(ed_view_t* view, ed_in_t* model) {
-  for(size_t i = 0; i < view->num_refs; i++) {
-    if(view->refs[i].in != model) {
+  for (size_t i = 0; i < view->num_refs; i++) {
+    if (view->refs[i].in != model) {
       continue;
     }
-    if(i != view->active){
+    if (i != view->active) {
       view->active = i;
       ed_redraw_everything(view);
     }

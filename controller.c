@@ -23,9 +23,9 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
     ed_process_input_changed(c->ed_view, callback_type);
   } else if (callback_type == TAB_CHANGED) {
     tab_process_input_changed(c->tab_view, callback_type);
-  } else if(callback_type == TAB_CLOSED) {
+  } else if (callback_type == TAB_CLOSED) {
     tab_process_input_changed(c->tab_view, callback_type);
-    #pragma message "IMPLEMENT CLOSE"
+#pragma message "IMPLEMENT CLOSE"
     //ed_process_input_changed(c->ed_view[], EDITOR_INPUT_ALL);
   }
 }
@@ -51,7 +51,7 @@ static void get_area_size(int* rows, int* columns) {
 
 static void normalize_area(int rows, int columns, int from_origin) {
   tcq_t* q = alloc_command_queue(rows * columns * 2);
-  if(from_origin) {
+  if (from_origin) {
     append_move_cursor(q, 1, 1);
   }
   append_options(q, FONT_DEFAULT, FG_WHITE, BG_BLACK);
@@ -71,7 +71,7 @@ c_t* c_init_controller() {
   normalize_area(rows, columns, 0);
   c->tab_in = init_tab_input(&call_back, c);
   c->tab_view = tab_init_editor(c->tab_in, 1, 1, columns);
-  c->ed_view = ed_init_editor( 3, 1, rows - 2, columns);
+  c->ed_view = ed_init_editor(3, 1, rows - 2, columns);
   return c;
 }
 
