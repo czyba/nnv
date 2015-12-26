@@ -19,6 +19,15 @@ tab_in_t* init_tab_input(controller_call_back_t cb, void* controller) {
   return in;
 }
 
+static int exists(tab_in_t* in, char* relative_file_path){
+  for(size_t i = 0; i < in->num_tabs; i++) {
+    if(!strcmp(in->tab_names[i], relative_file_path)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 void tab_in_free(tab_in_t* in) {
   for (size_t i = 0; i < in->num_tabs; i++) {
     free(in->tab_names[i]);
@@ -28,7 +37,9 @@ void tab_in_free(tab_in_t* in) {
 }
 
 void tab_in_register_tab(tab_in_t* in, char* relative_file_path) {
-#pragma message "check whether tab exists"
+  if(exists(in, relative_file_path)) {
+    return;
+  }
   in->num_tabs++;
   in->active_tab = in->num_tabs - 1;
   in->tab_names = realloc(in->tab_names, in->num_tabs * sizeof(char*));
