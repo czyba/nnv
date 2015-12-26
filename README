@@ -4,3 +4,23 @@ This editor is not meant to be used actively. It is just a small project to get 
  2.) Model-View-Controller concept (and how difficult it is to implement in C)
  3.) I/O
  4.) escape sequences
+
+Currently implemented features
+
+  1.) Printing ASCII-Characters and newlines
+  2.) Keys with their usual interpretation:
+    - Printable ASCII Input Keys
+    - Return
+    - Backspace
+    - Del
+    - Home
+    - End
+    - Page up
+    - Page down
+  3.) Features:
+    - Opening Multiple Textfiles
+    - Multitab support (without actual indication though)
+  4.) Hotkeys
+    - Save: CTRL + S
+    - Next Tab: CTRL + n        //I wanted TAB and CTRL + TAB, but both are just tabs in a console :<
+    - Previous Tab: CTRL + p
