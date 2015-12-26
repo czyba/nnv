@@ -4,11 +4,37 @@ static key_t parse_CSI_3(unsigned char* a, size_t len) {
   key_t key;
   key.ascii = 0;
   key.nkey = 0;
-  if(len > 4){
+  if (len > 4) {
     //TODO:
   }
-  if(a[3] == '~') {
+  if (a[3] == '~') {
     key.nkey = KEY_DEL;
+  }
+  return key;
+}
+
+static key_t parse_CSI_5(unsigned char* a, size_t len) {
+  key_t key;
+  key.ascii = 0;
+  key.nkey = 0;
+  if (len > 4) {
+    //TODO:
+  }
+  if (a[3] == '~') {
+    key.nkey = KEY_PG_UP;
+  }
+  return key;
+}
+
+static key_t parse_CSI_6(unsigned char* a, size_t len) {
+  key_t key;
+  key.ascii = 0;
+  key.nkey = 0;
+  if (len > 4) {
+    //TODO:
+  }
+  if (a[3] == '~') {
+    key.nkey = KEY_PG_DOWN;
   }
   return key;
 }
@@ -17,9 +43,14 @@ static key_t parse_CSI(unsigned char* a, size_t len) {
   key_t key;
   key.ascii = 0;
   key.nkey = 0;
-  if(len > 3) {
-    if (a[2] == '3') {
+  if (len > 3) {
+    switch (a[2]) {
+    case '3':
       return parse_CSI_3(a, len);
+    case '5':
+      return parse_CSI_5(a, len);
+    case '6':
+      return parse_CSI_6(a, len);
     }
   }
   switch (a[2]) {
@@ -41,7 +72,6 @@ static key_t parse_CSI(unsigned char* a, size_t len) {
   default:
     break;
   }
-  return key;
   return key;
 }
 

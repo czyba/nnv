@@ -19,6 +19,8 @@
 #define KEY_DEL 0x00000005
 #define KEY_HOME 0x00000006
 #define KEY_END 0x00000007
+#define KEY_PG_UP 0x00000008
+#define KEY_PG_DOWN 0x00000009
 
 typedef struct key_type_t {
   int ascii;
