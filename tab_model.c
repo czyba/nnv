@@ -30,7 +30,7 @@ static int exists(tab_in_t* in, char* relative_file_path) {
 
 void tab_in_free(tab_in_t* in) {
   for (size_t i = 0; i < in->num_tabs; i++) {
-    free(in->tabs[i]);
+    ed_in_free(in->tabs[i]);
   }
   free(in->tabs);
   free(in);
