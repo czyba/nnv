@@ -1,7 +1,6 @@
 #include "view.h"
 #include "model.h"
 #include "termout.h"
-#include "screen.h"
 #include <stdlib.h>
 #include <string.h>
 #include <alloca.h>
@@ -86,6 +85,10 @@ ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int
 void ed_free(ed_view_t* view) {
   ed_in_free(view->in);
   free(view);
+}
+
+area_t ed_get_area(ed_view_t* view) {
+  return view->area;
 }
 
 void ed_reset(ed_view_t* view) {
