@@ -49,8 +49,12 @@ static void get_area_size(int* rows, int* columns) {
   free_command_queue(q);
 }
 
-static void normalize_area(int rows, int columns) {
+static void normalize_area(int rows, int columns, int from_origin) {
   tcq_t* q = alloc_command_queue(rows * columns * 2);
+  if(from_origin) {
+    append_move_cursor(q, 1, 1);
+  }
+  append_options(q, FONT_DEFAULT, FG_WHITE, BG_BLACK);
   char* a = (char*) alloca(rows * columns);
   memset(a, ' ', rows * columns);
   append_output(q, a, rows * columns);
@@ -66,7 +70,7 @@ c_t* c_init_controller() {
   c->active_index = -1;
   int rows, columns;
   get_area_size(&rows, &columns);
-  normalize_area(rows, columns);
+  normalize_area(rows, columns, 0);
   tab_in_t* tab_in = init_tab_input(&call_back, c);
   c->tab_view = tab_init_editor(tab_in, 1, 1, columns);
   return c;
@@ -74,11 +78,13 @@ c_t* c_init_controller() {
 
 void c_free_controller(c_t* c) {
   for (size_t i = 0; i < c->num_files; i++) {
-    ed_reset(c->ed_view[i]);
     ed_free(c->ed_view[i]);
   }
   free(c->ed_view);
   tab_free(c->tab_view);
+  int rows, columns;
+  get_area_size(&rows, &columns);
+  normalize_area(rows, columns, 1);
   free(c);
 }
 
