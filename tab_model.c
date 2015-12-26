@@ -23,6 +23,7 @@ void tab_in_free(tab_in_t* in) {
   for (size_t i = 0; i < in->num_tabs; i++) {
     free(in->tab_names[i]);
   }
+  free(in->tab_names);
   free(in);
 }
 

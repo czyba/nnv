@@ -77,6 +77,8 @@ void c_free_controller(c_t* c) {
     ed_reset(c->ed_view[i]);
     ed_free(c->ed_view[i]);
   }
+  free(c->ed_view);
+  tab_free(c->tab_view);
   free(c);
 }
 

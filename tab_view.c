@@ -48,7 +48,7 @@ static void printf_tabs(tab_view_t* view) {
       if (i == index) {
         append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
         append_output(q, names[i], len);
-        append_options(q, NO_OPTION, FG_BLACK, BG_WHITE);
+        append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
       } else {
         append_output(q, names[i], len);
       }
