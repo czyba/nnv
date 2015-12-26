@@ -1,7 +1,7 @@
 #ifndef _EDITOR_VIEW_H
 #define _EDITOR_VIEW_H
 
-#include "callback_types.h"
+#include "controller_callback.h"
 #include "editor_model.h"
 #include "screen.h"
 

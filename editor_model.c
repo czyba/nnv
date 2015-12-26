@@ -31,8 +31,7 @@ typedef struct editor_input_t {
   char* file_name;
   int fd;
 
-  void (*controller_call_back)(void* controller, enum CALLBACK_TYPE);
-  void* controller;
+  cb_t cb;
 } ed_in_t;
 
 static int ed_in_read_line(line_t* line, char* buf, size_t length) {
@@ -103,7 +102,7 @@ void ed_in_save_file(ed_in_t* in) {
   }
 }
 
-ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum CALLBACK_TYPE callback_type), void* controller) {
+ed_in_t* init_editor_input( controller_call_back_t cb, c_t* controller) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
   in->row = 0;
   in->column = 0;
@@ -114,8 +113,8 @@ ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum C
   in->lines[0].pos = 0;
   in->fd = -1;
   in->file_name = NULL;
-  in->controller_call_back = controller_call_back;
-  in->controller = controller;
+  in->cb.cb = cb;
+  in->cb.controller = controller;
   return in;
 }
 
@@ -135,7 +134,7 @@ void ed_in_move_up_line(ed_in_t* in, size_t lines) {
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_down_line(ed_in_t* in, size_t lines) {
@@ -143,7 +142,7 @@ void ed_in_move_down_line(ed_in_t* in, size_t lines) {
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_back_character(ed_in_t* in) {
@@ -156,7 +155,7 @@ void ed_in_move_back_character(ed_in_t* in) {
     in->row--;
     in->column = in->lines[in->row].pos;
   }
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_forward_character(ed_in_t* in) {
@@ -169,17 +168,17 @@ void ed_in_move_forward_character(ed_in_t* in) {
     in->row++;
     in->column = 0;
   }
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_home(ed_in_t* in) {
   in->column = 0;
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_end(ed_in_t* in) {
   in->column = in->lines[in->row].pos;
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_delete_at_cursor(ed_in_t* in) {
@@ -199,7 +198,7 @@ void ed_in_delete_at_cursor(ed_in_t* in) {
       in->lines[in->row].length >>= 1;
       in->lines[in->row].line = realloc(in->lines[in->row].line, in->lines[in->row].length);
     }
-    in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_LINE);
+    in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_LINE);
     return;
   }
   line_t* c_line = &in->lines[in->row];
@@ -223,7 +222,7 @@ void ed_in_delete_at_cursor(ed_in_t* in) {
   //resize lines
   in->num_lines--;
   in->lines = realloc(in->lines, sizeof(line_t) * in->num_lines);
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_ALL);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_ALL);
 }
 
 void ed_in_input_printable_character(ed_in_t* in, key_t k) {
@@ -238,7 +237,7 @@ void ed_in_input_printable_character(ed_in_t* in, key_t k) {
   line->line[in->column] = k.key;
   line->pos++;
   in->column++;
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_LINE);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_LINE);
 }
 
 void ed_in_input_LF(ed_in_t* in) {
@@ -257,7 +256,7 @@ void ed_in_input_LF(ed_in_t* in) {
   old_line->pos = in->column;
   in->row++;
   in->column = 0;
-  in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_ALL);
+  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_ALL);
 }
 
 int ed_in_at_origin(ed_in_t* in) {

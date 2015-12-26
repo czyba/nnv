@@ -2,11 +2,12 @@
 #define _EDITOR_MODEL_H
 
 #include "input.h"
-#include "callback_types.h"
+#include "controller_callback.h"
+#include "controller.h"
 
 typedef struct editor_input_t ed_in_t;
 
-ed_in_t* init_editor_input(void (*controller_call_back)(void* controller, enum CALLBACK_TYPE callback_type), void* controller);
+ed_in_t* init_editor_input(controller_call_back_t cb, c_t* controller);
 void ed_in_free(ed_in_t* in);
 
 void ed_in_load_file(ed_in_t* in, char* filename);

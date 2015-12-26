@@ -2,7 +2,7 @@
 #define _CONTROLLER_H
 
 #include "input.h"
-#include "callback_types.h"
+#include "controller_callback.h"
 
 typedef struct controller_t c_t;
 
