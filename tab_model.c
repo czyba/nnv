@@ -65,7 +65,7 @@ void tab_in_unregister_tab(tab_in_t* in) {
 }
 
 void tab_next(tab_in_t* in) {
-  if (in->num_tabs == 0) {
+  if (in->num_tabs <= 1) {
     return;
   }
   in->active_tab = (in->active_tab + 1) % in->num_tabs;
@@ -73,7 +73,7 @@ void tab_next(tab_in_t* in) {
 }
 
 void tab_previous(tab_in_t* in) {
-  if (in->num_tabs == 0) {
+  if (in->num_tabs <= 1) {
     return;
   }
   if (in->active_tab == 0) {

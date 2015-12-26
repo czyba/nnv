@@ -152,7 +152,7 @@ void c_input_key(c_t* c, key_t k) {
       break;
     }
     case CTRL_P: {
-      tab_previous(tab_get_model(c->tab_view));
+      tab_previous(c->tab_in);
       ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
       break;
     }
