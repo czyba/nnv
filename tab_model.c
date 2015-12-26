@@ -57,10 +57,9 @@ void tab_in_unregister_tab(tab_in_t* in) {
     in->tabs[i - 1] = in->tabs[i];
   }
   in->num_tabs--;
-  if (in->active_tab == 0) {
-    in->active_tab = 1;
+  if (in->active_tab != 0) {
+    in->active_tab = in->active_tab - 1;
   }
-  in->active_tab = in->active_tab - 1;
   in->tabs = realloc(in->tabs, in->num_tabs * sizeof(ed_in_t*));
   cb_do_callback(&in->cb, TAB_CLOSED);
 }

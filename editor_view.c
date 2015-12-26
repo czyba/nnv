@@ -118,6 +118,19 @@ void ed_register_model(ed_view_t* view, ed_in_t* model) {
   view->refs[view->num_refs - 1].in = model;
 }
 
+void ed_unregister_active_model(ed_view_t* ed){
+  if(ed->num_refs == 0) {
+    return;
+  }
+  for(size_t i = ed->active + 1; i < ed->num_refs; i++) {
+    ed->refs[i - 1] = ed->refs[i];
+  }
+  ed->num_refs--;
+  ed->refs = realloc(ed->refs, ed->num_refs * sizeof(i_ref_t));
+  ed->active = ed->active ? ed->active - 1 : 0;
+  ed_redraw_everything(ed);
+}
+
 void ed_set_model_active(ed_view_t* view, ed_in_t* model) {
   for (size_t i = 0; i < view->num_refs; i++) {
     if (view->refs[i].in != model) {

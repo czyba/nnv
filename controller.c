@@ -25,8 +25,8 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
     tab_process_input_changed(c->tab_view, callback_type);
   } else if (callback_type == TAB_CLOSED) {
     tab_process_input_changed(c->tab_view, callback_type);
-#pragma message "IMPLEMENT CLOSE"
-    //ed_process_input_changed(c->ed_view[], EDITOR_INPUT_ALL);
+    ed_unregister_active_model(c->ed_view);
+    ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
   }
 }
 
