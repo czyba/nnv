@@ -255,10 +255,6 @@ void ed_in_input_LF(ed_in_t* in) {
   new_line->line = malloc(new_line->length);
   memcpy(new_line->line, old_line->line + in->column, new_line->pos);
   old_line->pos = in->column;
-  if (old_line->pos == old_line->length) {
-    old_line->length <<= 1;
-    old_line->line = realloc(old_line->line, old_line->length);
-  }
   in->row++;
   in->column = 0;
   in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_ALL);
