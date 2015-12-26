@@ -2,8 +2,7 @@
 #define _CONTROLLER_H
 
 #include "input.h"
-#include "editor_view.h"
-#include "editor_model.h"
+#include "callback_types.h"
 
 typedef struct controller_t c_t;
 
