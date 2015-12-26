@@ -30,7 +30,7 @@ typedef struct key_type_t {
   };
 } key_t;
 
-#define IS_PRINTABLE(x) (x.ascii && x.key >= 0x20 && x.key < 0x7F)
+#define IS_PRINTABLE(x) (x.ascii && x.key >= 0x20 && x.key != 0x7F)
 
 key_t parse_key(unsigned char* sequence, size_t n);
 
