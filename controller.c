@@ -83,9 +83,11 @@ void c_free_controller(c_t* c) {
 }
 
 void c_open_file(c_t* c, char* filename) {
+  if (tab_in_register_tab(tab_get_model(c->tab_view), filename)) {
+    return;
+  }
   c->num_files++;
   c->ed_view = realloc(c->ed_view, c->num_files * sizeof(ed_view_t*));
-  tab_in_register_tab(tab_get_model(c->tab_view), filename);
   ed_in_t* in = init_editor_input(&call_back, c);
   ed_in_load_file(in, filename);
   int rows, columns;

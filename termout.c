@@ -192,7 +192,7 @@ int append_font_options(tcq_t* q, enum FONT_OPTION font_options) {
   }
   int ret = 0;
   int written = 0;
-  ret = append_font_option(q, font_options, FONT_BOLD_MASK, FONT_BOLD_OFF, '1' , '2');
+  ret = append_font_option(q, font_options, FONT_BOLD_MASK, FONT_BOLD_OFF, '1', '2');
   DEFAULT_FONT_APPEND_ACTION(q, ret, origPos)
 
   ret = append_font_option(q, font_options, FONT_BRIGHT_MASK, FONT_BRIGHT_OFF, '2', '2');

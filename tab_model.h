@@ -9,7 +9,7 @@ typedef struct tab_model_t tab_in_t;
 tab_in_t* init_tab_input(controller_call_back_t cb, void* controller);
 void tab_in_free(tab_in_t* in);
 
-void tab_in_register_tab(tab_in_t* in, char* relative_file_path);
+int tab_in_register_tab(tab_in_t* in, char* relative_file_path);
 
 void tab_next(tab_in_t* in);
 void tab_previous(tab_in_t* in);
