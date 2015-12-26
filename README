@@ -17,6 +17,7 @@ Currently implemented features
     - End
     - Page up
     - Page down
+    - Arrow keys
   3.) Features:
     - Opening Multiple Textfiles
     - Multitab support (without actual indication though)
