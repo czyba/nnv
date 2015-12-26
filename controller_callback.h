@@ -14,4 +14,6 @@ typedef struct call_back_t {
   controller_call_back_t cb;
 } cb_t;
 
+void cb_do_callback(cb_t* cb, enum CALLBACK_TYPE type);
+
 #endif

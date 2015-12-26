@@ -21,7 +21,6 @@ typedef struct line_t {
 } line_t;
 
 typedef struct editor_input_t {
-  enum CALLBACK_TYPE type;
   line_t* lines;
   size_t num_lines;
 
@@ -134,7 +133,7 @@ void ed_in_move_up_line(ed_in_t* in, size_t lines) {
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_down_line(ed_in_t* in, size_t lines) {
@@ -142,7 +141,7 @@ void ed_in_move_down_line(ed_in_t* in, size_t lines) {
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_back_character(ed_in_t* in) {
@@ -155,7 +154,7 @@ void ed_in_move_back_character(ed_in_t* in) {
     in->row--;
     in->column = in->lines[in->row].pos;
   }
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_forward_character(ed_in_t* in) {
@@ -168,12 +167,12 @@ void ed_in_move_forward_character(ed_in_t* in) {
     in->row++;
     in->column = 0;
   }
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_home(ed_in_t* in) {
   in->column = 0;
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_move_end(ed_in_t* in) {
