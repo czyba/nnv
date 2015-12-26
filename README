@@ -20,9 +20,9 @@ Currently implemented features
     - Arrow keys
   3.) Features:
     - Opening Multiple Textfiles
-    - Multitab support (without actual indication though)
+    - Multitab support
   4.) Hotkeys
     - Save: CTRL + s
-    - Next Tab: CTRL + n        //I wanted TAB and CTRL + TAB, but both are just tabs in a console :<
+    - Next Tab: CTRL + n, I wanted TAB and CTRL + TAB, but both are just tabs in a console :<
     - Previous Tab: CTRL + p
     - Quit without saving: CTRL + q
