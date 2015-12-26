@@ -2,16 +2,19 @@
 #include <alloca.h> //for alloca
 #include <string.h> //memset
 
-#include "controller.h" //controller methods
-#include "editor_view.h"       //view methods
-#include "editor_model.h"      // model methods
-#include "termout.h"    // terminal methods
+#include "controller.h"   //controller methods
+#include "editor_view.h"  //view methods
+#include "editor_model.h" // model methods
+#include "termout.h"      // terminal methods
 #include "screen.h"
+#include "tab_view.h"
 
 struct controller_t {
   ed_view_t** ed_view;
   size_t num_files;
   int active_index;
+
+  tab_view_t* tab_view;
 };
 
 #include <stdio.h>
@@ -21,6 +24,9 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   if (callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE ||
       callback_type == EDITOR_INPUT_CURSOR) {
     ed_process_input_changed(c->ed_view[c->active_index], callback_type);
+  }
+  if (callback_type == TAB_CHANGED) {
+    tab_process_input_changed(c->tab_view, callback_type);
   }
 }
 
@@ -61,6 +67,8 @@ c_t* c_init_controller() {
   int rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns);
+  tab_in_t* tab_in = init_tab_input(&call_back, c);
+  c->tab_view = tab_init_editor(tab_in, 1, 1, columns);
   return c;
 }
 
@@ -75,11 +83,12 @@ void c_free_controller(c_t* c) {
 void c_open_file(c_t* c, char* filename) {
   c->num_files++;
   c->ed_view = realloc(c->ed_view, c->num_files * sizeof(ed_view_t*));
+  tab_in_register_tab(tab_get_model(c->tab_view), filename);
   ed_in_t* in = init_editor_input(&call_back, c);
   ed_in_load_file(in, filename);
   int rows, columns;
   get_area_size(&rows, &columns);
-  c->ed_view[c->num_files - 1] = ed_init_editor(in, 1, 1, rows, columns);
+  c->ed_view[c->num_files - 1] = ed_init_editor(in, 3, 1, rows, columns);
   c->active_index = c->num_files - 1;
 }
 
@@ -140,17 +149,19 @@ void c_input_key(c_t* c, key_t k) {
     }
     case CTRL_N: {
       c->active_index = (c->active_index + 1) % c->num_files;
+      tab_next(tab_get_model(c->tab_view));
       ed_process_input_changed(c->ed_view[c->active_index], EDITOR_INPUT_ALL);
       break;
     }
     case CTRL_P: {
-      if(c->active_index == 0) {
+      if (c->active_index == 0) {
         c->active_index = c->num_files;
       }
       c->active_index = (c->active_index - 1) % c->num_files;
       while (c->active_index < 0) {
         c->active_index += c->num_files;
       }
+      tab_previous(tab_get_model(c->tab_view));
       ed_process_input_changed(c->ed_view[c->active_index], EDITOR_INPUT_ALL);
       break;
     }

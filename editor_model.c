@@ -62,7 +62,8 @@ void ed_in_load_file(ed_in_t* in, char* filename) {
     return;
   }
   char buf[4096];
-  int chars_read = read(in->fd, buf, sizeof(buf));
+  int chars_read = 0;
+  chars_read = read(in->fd, buf, sizeof(buf));
   line_t* line = &in->lines[0];
   while (chars_read >= 0) {
     if (chars_read == 0) {
@@ -101,7 +102,7 @@ void ed_in_save_file(ed_in_t* in) {
   }
 }
 
-ed_in_t* init_editor_input( controller_call_back_t cb, c_t* controller) {
+ed_in_t* init_editor_input(controller_call_back_t cb, c_t* controller) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
   in->row = 0;
   in->column = 0;
