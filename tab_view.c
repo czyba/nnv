@@ -17,7 +17,16 @@ static void insert_characer_times(tcq_t* q, char c, size_t num) {
   append_output(q, buf, num);
 }
 
-static void printf_tabs(tab_view_t* view) {
+static size_t insert_name(tcq_t* q, char* name) {
+  char c = ' ';
+  size_t len = strlen(name);
+  append_output(q, &c, 1);
+  append_output(q, name, len);
+  append_output(q, &c, 1);
+  return len + 2;
+}
+
+static void print_tabs(tab_view_t* view) {
   tab_in_t* in = view->in;
   ed_in_t** tabs = tab_get_tabs(in);
   size_t num_tabs = tab_get_num_names(view->in);
@@ -44,25 +53,20 @@ static void printf_tabs(tab_view_t* view) {
     total_size += strlen(names[i]);
   }
   if (total_size + num_tabs * 3 - 1 < cols) {
-    size_t written_cols = 0;
+    size_t written_cols = total_size + num_tabs * 3 - 1;
+    insert_characer_times(q, ' ', (cols - written_cols) / 2);
     for (size_t i = 0; i < num_tabs; i++) {
-      char c = ' ';
-      size_t len = strlen(names[i]);
-      append_output(q, &c, 1);
       if (i == index) {
-        append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
-        append_output(q, names[i], len);
-        append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
-      } else {
-        append_output(q, names[i], len);
-      }
+      append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
+    }
+    insert_name(q, names[i]);
+    if (i == index) {
+      append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
+    }
       if (i != num_tabs - 1) {
-        written_cols += 2;
-        append_output(q, &c, 1);
-        c = '|';
+        char c = '|';
         append_output(q, &c, 1);
       }
-      written_cols += len + 1;
     }
     insert_characer_times(q, ' ', cols - written_cols);
     append_move_cursor(q, view->area.origin_x + 1, view->area.origin_y);
@@ -81,7 +85,7 @@ tab_view_t* tab_init_editor(tab_in_t* in, int origin_x, int origin_y, int column
   view->area.rows = 2;
   view->area.columns = columns;
   view->in = in;
-  printf_tabs(view);
+  print_tabs(view);
   return view;
 }
 void tab_free(tab_view_t* view) {
@@ -98,5 +102,5 @@ void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type) {
     return;
   }
   (void) view;
-  printf_tabs(view);
+  print_tabs(view);
 }
