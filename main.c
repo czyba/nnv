@@ -32,7 +32,7 @@ void resetTermios() {
 }
 
 int main(int argc, char** argv) {
-  if(argc == 1) {
+  if (argc == 1) {
     printf("Nothing to open\n");
     return 0;
   }
@@ -41,7 +41,9 @@ int main(int argc, char** argv) {
   c_t* c = init_controller();
   (void) c;
 
-  open_file(c, argv[argc -1]);
+  for (int i = 1; i < argc; i++) {
+    open_file(c, argv[i]);
+  }
 
   unsigned char tmp[10];
   ssize_t n;

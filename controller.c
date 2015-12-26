@@ -65,7 +65,7 @@ c_t* init_controller() {
 }
 
 void free_controller(c_t* c) {
-  for(size_t i = 0; i < c->num_files; i++) {
+  for (size_t i = 0; i < c->num_files; i++) {
     ed_reset(c->ed_view[i]);
     ed_free(c->ed_view[i]);
   }
@@ -136,12 +136,25 @@ void input_key(c_t* c, key_t k) {
       return;
     }
     switch (k.key) {
-    case ASCII_DC3: {
-      ed_in_save_file(in);
+    case CTRL_M: {
+      ed_in_input_LF(in);
       break;
     }
-    case ASCII_CR: {
-      ed_in_input_LF(in);
+    case CTRL_N: {
+      c->active_index = (c->active_index + 1) % c->num_files;
+      ed_process_input_changed(c->ed_view[c->active_index], EDITOR_INPUT_ALL);
+      break;
+    }
+    case CTRL_P: {
+      c->active_index = (c->active_index - 1) % c->num_files;
+      while (c->active_index < 0) {
+        c->active_index += c->num_files;
+      }
+      ed_process_input_changed(c->ed_view[c->active_index], EDITOR_INPUT_ALL);
+      break;
+    }
+    case CTRL_S: {
+      ed_in_save_file(in);
       break;
     }
     case ASCII_DEL: {

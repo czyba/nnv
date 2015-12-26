@@ -51,7 +51,7 @@ static int ed_in_read_line(line_t* line, char* buf, size_t length) {
   memcpy(line->line + line->pos, buf, i);
   line->length = new_length;
   line->pos = new_pos;
-  if(buf[i] == ASCII_LF) {
+  if (buf[i] == ASCII_LF) {
     i++;
     i = -i;
   }
