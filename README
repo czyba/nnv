@@ -22,6 +22,7 @@ Currently implemented features
     - Opening Multiple Textfiles
     - Multitab support (without actual indication though)
   4.) Hotkeys
-    - Save: CTRL + S
+    - Save: CTRL + s
     - Next Tab: CTRL + n        //I wanted TAB and CTRL + TAB, but both are just tabs in a console :<
     - Previous Tab: CTRL + p
+    - Quit without saving: CTRL + q

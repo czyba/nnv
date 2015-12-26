@@ -1,7 +1,7 @@
 #ifndef _VIEW_H
 #define _VIEW_H
 
-#include "model.h"
+#include "editor_model.h"
 #include "screen.h"
 
 typedef struct editor_view_t ed_view_t;

@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "input.h"
-#include "view.h"
-#include "model.h"
+#include "editor_view.h"
+#include "editor_model.h"
 #include "controller.h"
 
 /* Initialize new terminal i/o settings */

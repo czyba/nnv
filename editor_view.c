@@ -1,5 +1,5 @@
-#include "view.h"
-#include "model.h"
+#include "editor_view.h"
+#include "editor_model.h"
 #include "termout.h"
 #include <stdlib.h>
 #include <string.h>

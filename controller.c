@@ -3,8 +3,8 @@
 #include <string.h> //memset
 
 #include "controller.h" //controller methods
-#include "view.h"       //view methods
-#include "model.h"      // model methods
+#include "editor_view.h"       //view methods
+#include "editor_model.h"      // model methods
 #include "termout.h"    // terminal methods
 #include "screen.h"
 

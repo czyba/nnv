@@ -6,9 +6,10 @@ FORMAT=clang-format
 CXX=clang++
 CXXFLAGS=$(CFLAGS)
 
+NAME=nnv
 
 all:
-	$(CC) $(CFLAGS) -o a.out termout.c main.c input.c model.c view.c controller.c basic_math.c
+	$(CC) $(CFLAGS) -o $(NAME) termout.c main.c input.c editor_model.c editor_view.c controller.c basic_math.c
 
 format:
 	$(FORMAT) -i *.h *.c
@@ -19,4 +20,4 @@ test:
 .PHONY: clean
 
 clean:
-	rm -f *.o
+	rm -f *.o $(NAME) test.out

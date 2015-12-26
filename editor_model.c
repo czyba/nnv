@@ -1,4 +1,4 @@
-#include "model.h"
+#include "editor_model.h"
 #include "input.h"
 #include "controller.h"
 #include "basic_math.h"
