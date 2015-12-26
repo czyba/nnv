@@ -167,3 +167,33 @@ void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type) {
     ed_redraw_everything(ed);
   }
 }
+
+void ed_move_up_screen(ed_view_t* view) {
+  ed_in_t* in = view->in;
+  size_t in_row, in_col;
+  ed_in_get_cursor_position(in, &in_row, &in_col);
+  if(in_row - view->area.rows > 0) {
+    view->file_x = view->file_x - view->area.rows;
+  }
+  ed_in_move_up_line(in, view->area.rows);
+  if(in_row - view->area.rows > 0) {
+    ed_redraw_everything(view);
+  }
+}
+void ed_move_down_screen(ed_view_t* view) {
+  ed_in_t* in = view->in;
+  size_t in_row, in_col, in_num_lines;
+  ed_in_get_cursor_position(in, &in_row, &in_col);
+  in_num_lines = ed_in_get_num_lines(in);
+  if(in_row + view->area.rows < in_num_lines - 1) {
+    view->file_x = view->file_x + view->area.rows;
+  }
+  //Adjust for last page
+  if(view->file_x > in_num_lines - 1 - view->area.rows) {
+    view->file_x = in_num_lines - view->area.rows;
+  }
+  ed_in_move_down_line(in, view->area.rows);
+  if(in_row + view->area.rows < in_num_lines - 1) {
+    ed_redraw_everything(view);
+  }
+}

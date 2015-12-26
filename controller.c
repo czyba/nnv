@@ -73,11 +73,11 @@ static void non_ascii_input(c_t* c, key_t k) {
   ed_in_t* in = ed_get_model(view);
   switch (k.nkey & KEY_MASK) {
   case KEY_UP: {
-    ed_in_move_up_line(in);
+    ed_in_move_up_line(in, 1);
     break;
   }
   case KEY_DOWN: {
-    ed_in_move_down_line(in);
+    ed_in_move_down_line(in, 1);
     break;
   }
   case KEY_RIGHT: {
@@ -101,17 +101,13 @@ static void non_ascii_input(c_t* c, key_t k) {
     break;
   }
   case KEY_PG_UP: {
-    area_t area = ed_get_area(view);
-    for(size_t i = 0; i < area.rows;i++){
-      ed_in_move_up_line(in);
-    }
+    ed_move_up_screen(view);
+    // area_t area = ed_get_area(view);
+    // ed_in_move_up_line(in, area.rows);
     break;
   }
   case KEY_PG_DOWN: {
-    area_t area = ed_get_area(view);
-    for(size_t i = 0; i < area.rows;i++){
-      ed_in_move_down_line(in);
-    }
+    ed_move_down_screen(view);
     break;
   }
   }

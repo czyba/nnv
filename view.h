@@ -10,9 +10,11 @@ void ed_free(ed_view_t* view);
 
 void ed_reset(ed_view_t* view);
 area_t ed_get_area(ed_view_t* view);
-
 ed_in_t* ed_get_model(ed_view_t* view);
 
+
+void ed_move_up_screen(ed_view_t* view);
+void ed_move_down_screen(ed_view_t* view);
 void ed_process_input_changed(ed_view_t* view, enum CALLBACK_TYPE type);
 
 #endif

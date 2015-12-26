@@ -135,22 +135,16 @@ void ed_in_free(ed_in_t* in) {
   free(in);
 }
 
-void ed_in_move_up_line(ed_in_t* in) {
-  if (in->row == 0) {
-    return;
-  }
-  in->row--;
+void ed_in_move_up_line(ed_in_t* in, size_t lines) {
+  in->row = in->row > lines ? in->row - lines : 0;
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
   in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_CURSOR);
 }
 
-void ed_in_move_down_line(ed_in_t* in) {
-  if (in->row == in->num_lines - 1) {
-    return;
-  }
-  in->row++;
+void ed_in_move_down_line(ed_in_t* in, size_t lines) {
+  in->row = in->row + lines < in->num_lines - 1 ? in->row + lines : in->num_lines - 1;
   if (in->column > in->lines[in->row].pos) {
     in->column = in->lines[in->row].pos;
   }
@@ -316,4 +310,8 @@ void ed_in_fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column,
 void ed_in_get_cursor_position(ed_in_t* in, size_t* row, size_t* column) {
   *row = in->row;
   *column = in->column;
+}
+
+size_t ed_in_get_num_lines(ed_in_t* in) {
+  return in->num_lines;
 }

@@ -21,9 +21,10 @@ void ed_in_fill_line(ed_in_t* in, char* line_to_fill, size_t row, size_t column,
 void ed_in_get_cursor_position(ed_in_t* in, size_t* row, size_t* column);
 
 int ed_in_at_origin(ed_in_t* in);
+size_t ed_in_get_num_lines(ed_in_t* in);
 
-void ed_in_move_up_line(ed_in_t* in);
-void ed_in_move_down_line(ed_in_t* in);
+void ed_in_move_up_line(ed_in_t* in, size_t lines);
+void ed_in_move_down_line(ed_in_t* in, size_t lines);
 void ed_in_move_back_character(ed_in_t* in);
 void ed_in_move_forward_character(ed_in_t* in);
 void ed_in_move_home(ed_in_t* in);
