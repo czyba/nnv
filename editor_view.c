@@ -29,12 +29,25 @@ Therefore the character in the top left corner of the screen is c_2_3.
 The area describes the area of the physical screen we posess. It is similar
 to the file view.
 */
-struct editor_view_t {
-  area_t area;
-  // Stores the top right position of the file
+typedef struct input_ref {
+  // Stores the top left position of the file
   size_t file_x, file_y;
   ed_in_t* in;
+} i_ref_t;
+
+struct editor_view_t {
+  area_t area;
+  i_ref_t* refs;
+  size_t active;
+  size_t num_refs;
 };
+
+static i_ref_t* ed_get_active_ref(ed_view_t* ed) {
+  if(ed->num_refs) {
+    return &ed->refs[ed->active];
+  }
+  return NULL;
+}
 
 static void ed_append_line(tcq_t* q, ed_in_t* in, size_t row, size_t column, size_t length) {
   char* a = alloca(length);
@@ -43,48 +56,79 @@ static void ed_append_line(tcq_t* q, ed_in_t* in, size_t row, size_t column, siz
 }
 
 static void ed_redraw_everything(ed_view_t* ed) {
+  if(!ed->num_refs) {
+    ed_reset(ed);
+    return;
+  }
   size_t in_row, in_col;
-  ed_in_t* in = ed->in;
-  ed_in_get_cursor_position(in, &in_row, &in_col);
-#pragma message "heuristic is for small terminals SHIT"
+  i_ref_t* ref = ed_get_active_ref(ed);
+  ed_in_get_cursor_position(ref->in, &in_row, &in_col);
   tcq_t* q = alloc_command_queue(ed->area.rows * ed->area.columns * 2);
   append_move_cursor(q, ed->area.origin_x, ed->area.origin_y);
   append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
   for (size_t i = 0; i < ed->area.rows; i++) {
-    ed_append_line(q, in, ed->file_x + i, ed->file_y, ed->area.columns);
+    ed_append_line(q, ref->in, ref->file_x + i, ref->file_y, ed->area.columns);
     append_move_cursor(q, ed->area.origin_x + i + 1, ed->area.origin_y);
   }
-  append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+  append_move_cursor(q, ed->area.origin_x + in_row - ref->file_x, ed->area.origin_y + in_col - ref->file_y);
   execute(q);
   free_command_queue(q);
 }
 
 static void ed_move_cursor(ed_view_t* ed) {
   size_t in_row, in_col;
-  ed_in_t* in = ed->in;
+  i_ref_t* ref = ed_get_active_ref(ed);
   tcq_t* q = alloc_command_queue(32);
-  ed_in_get_cursor_position(in, &in_row, &in_col);
-  append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+  ed_in_get_cursor_position(ref->in, &in_row, &in_col);
+  append_move_cursor(q, ed->area.origin_x + in_row - ref->file_x, ed->area.origin_y + in_col - ref->file_y);
   execute(q);
   free_command_queue(q);
 }
 
-ed_view_t* ed_init_editor(ed_in_t* in, int origin_x, int origin_y, int rows, int columns) {
+ed_view_t* ed_init_editor(int origin_x, int origin_y, int rows, int columns) {
   ed_view_t* ed = malloc(sizeof(ed_view_t));
-  ed->in = in;
   ed->area.origin_x = origin_x;
   ed->area.origin_y = origin_y;
   ed->area.rows = rows;
   ed->area.columns = columns;
-  ed->file_x = 0;
-  ed->file_y = 0;
+  ed->active = 1;
+  ed->refs = NULL;
+  ed->num_refs = 0;
   ed_redraw_everything(ed);
   return ed;
 }
 
 void ed_free(ed_view_t* view) {
-  ed_in_free(view->in);
+  if(view->num_refs){
+    free(view->refs);
+  }
   free(view);
+}
+
+void ed_register_model(ed_view_t* view, ed_in_t* model) {
+  for(size_t i = 0; i < view->num_refs; i++) {
+    if(view->refs[i].in == model) {
+      return;
+    }
+  }
+  view->num_refs++;
+  view->refs = realloc(view->refs, view->num_refs * sizeof(i_ref_t));
+  view->refs[view->num_refs - 1].file_x = 0;
+  view->refs[view->num_refs - 1].file_y = 0;
+  view->refs[view->num_refs - 1].in = model;
+}
+
+void ed_set_model_active(ed_view_t* view, ed_in_t* model) {
+  for(size_t i = 0; i < view->num_refs; i++) {
+    if(view->refs[i].in != model) {
+      continue;
+    }
+    if(i != view->active){
+      view->active = i;
+      ed_redraw_everything(view);
+    }
+    return;
+  }
 }
 
 area_t ed_get_area(ed_view_t* view) {
@@ -105,27 +149,23 @@ void ed_reset(ed_view_t* view) {
   free_command_queue(q);
 }
 
-inline ed_in_t* ed_get_model(ed_view_t* view) {
-  return view->in;
-}
-
 static int ed_adapt_to_input_position(ed_view_t* ed) {
-  ed_in_t* in = ed->in;
+  i_ref_t* ref = ed_get_active_ref(ed);
   size_t in_row, in_col;
   int ret = 0;
-  ed_in_get_cursor_position(in, &in_row, &in_col);
-  if (ed->file_x > in_row) {
-    ed->file_x = in_row;
+  ed_in_get_cursor_position(ref->in, &in_row, &in_col);
+  if (ref->file_x > in_row) {
+    ref->file_x = in_row;
     ret = 1;
-  } else if (ed->file_x + ed->area.rows <= in_row + 1) {
-    ed->file_x = in_row - ed->area.rows + 1;
+  } else if (ref->file_x + ed->area.rows <= in_row + 1) {
+    ref->file_x = in_row - ed->area.rows + 1;
     ret = 1;
   }
-  if (ed->file_y > in_col) {
-    ed->file_y = in_col;
+  if (ref->file_y > in_col) {
+    ref->file_y = in_col;
     ret = 1;
-  } else if (ed->file_y + ed->area.columns < in_col + 1) {
-    ed->file_y = in_col - ed->area.columns + 1;
+  } else if (ref->file_y + ed->area.columns < in_col + 1) {
+    ref->file_y = in_col - ed->area.columns + 1;
     ret = 1;
   }
   return ret;
@@ -144,14 +184,14 @@ static void ed_process_line_changed(ed_view_t* ed) {
     ed_redraw_everything(ed);
   } else {
     size_t in_row, in_col;
-    ed_in_t* in = ed->in;
-    ed_in_get_cursor_position(in, &in_row, &in_col);
+    i_ref_t* ref = ed_get_active_ref(ed);
+    ed_in_get_cursor_position(ref->in, &in_row, &in_col);
     tcq_t* q = alloc_command_queue(ed->area.columns + 64);
-    append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y);
+    append_move_cursor(q, ed->area.origin_x + in_row - ref->file_x, ed->area.origin_y);
     size_t affected_row = in_row;
     append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
-    ed_append_line(q, in, affected_row, ed->file_y, ed->area.columns);
-    append_move_cursor(q, ed->area.origin_x + in_row - ed->file_x, ed->area.origin_y + in_col - ed->file_y);
+    ed_append_line(q, ref->in, affected_row, ref->file_y, ed->area.columns);
+    append_move_cursor(q, ed->area.origin_x + in_row - ref->file_x, ed->area.origin_y + in_col - ref->file_y);
     execute(q);
     free_command_queue(q);
   }
@@ -169,30 +209,31 @@ void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type) {
 }
 
 void ed_move_up_screen(ed_view_t* view) {
-  ed_in_t* in = view->in;
+  i_ref_t* ref = ed_get_active_ref(view);
   size_t in_row, in_col;
-  ed_in_get_cursor_position(in, &in_row, &in_col);
+  ed_in_get_cursor_position(ref->in, &in_row, &in_col);
   if (in_row - view->area.rows > 0) {
-    view->file_x = view->file_x > view->area.rows ? view->file_x > view->area.rows : 0;
+    ref->file_x = ref->file_x > view->area.rows ? ref->file_x > view->area.rows : 0;
   }
-  ed_in_move_up_line(in, view->area.rows);
+  ed_in_move_up_line(ref->in, view->area.rows);
   if (in_row - view->area.rows > 0) {
     ed_redraw_everything(view);
   }
 }
+
 void ed_move_down_screen(ed_view_t* view) {
-  ed_in_t* in = view->in;
+  i_ref_t* ref = ed_get_active_ref(view);
   size_t in_row, in_col, in_num_lines;
-  ed_in_get_cursor_position(in, &in_row, &in_col);
-  in_num_lines = ed_in_get_num_lines(in);
+  ed_in_get_cursor_position(ref->in, &in_row, &in_col);
+  in_num_lines = ed_in_get_num_lines(ref->in);
   if (in_row + view->area.rows < in_num_lines - 1) {
-    view->file_x = view->file_x + view->area.rows;
+    ref->file_x = ref->file_x + view->area.rows;
   }
   //Adjust for last page
-  if (view->file_x > in_num_lines - 1 - view->area.rows) {
-    view->file_x = in_num_lines - view->area.rows;
+  if (ref->file_x > in_num_lines - 1 - view->area.rows) {
+    ref->file_x = in_num_lines - view->area.rows;
   }
-  ed_in_move_down_line(in, view->area.rows);
+  ed_in_move_down_line(ref->in, view->area.rows);
   if (in_row + view->area.rows < in_num_lines - 1) {
     ed_redraw_everything(view);
   }

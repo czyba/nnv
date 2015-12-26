@@ -19,8 +19,12 @@ static void insert_characer_times(tcq_t* q, char c, size_t num) {
 
 static void printf_tabs(tab_view_t* view) {
   tab_in_t* in = view->in;
-  char** names = tab_get_names(in);
+  ed_in_t** tabs = tab_get_tabs(in);
   size_t num_tabs = tab_get_num_names(view->in);
+  char** names = alloca(num_tabs * sizeof(char*));
+  for(size_t i = 0; i < num_tabs; i++) {
+    names[i] = ed_in_get_file_name(tabs[i]);
+  }
   size_t index = tab_get_index(view->in);
   size_t cols = view->area.columns;
   //2 rows * cols + num_tabs * 20 (for mode changes) + 50 for backup

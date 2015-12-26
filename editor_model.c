@@ -56,8 +56,8 @@ static int ed_in_read_line(line_t* line, char* buf, size_t length) {
   return i;
 }
 
-void ed_in_load_file(ed_in_t* in, char* filename) {
-  in->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+void ed_in_load_file(ed_in_t* in) {
+  in->fd = open(in->file_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (in->fd < 0) {
     return;
   }
@@ -102,7 +102,7 @@ void ed_in_save_file(ed_in_t* in) {
   }
 }
 
-ed_in_t* init_editor_input(controller_call_back_t cb, c_t* controller) {
+ed_in_t* init_editor_input(controller_call_back_t cb, c_t* controller, char* file_name) {
   ed_in_t* in = malloc(sizeof(ed_in_t));
   in->row = 0;
   in->column = 0;
@@ -115,6 +115,10 @@ ed_in_t* init_editor_input(controller_call_back_t cb, c_t* controller) {
   in->file_name = NULL;
   in->cb.cb = cb;
   in->cb.controller = controller;
+  char* name = malloc(strlen(file_name) + 1);
+  strcpy(name, file_name);
+  in->file_name = name;
+  ed_in_load_file(in);
   return in;
 }
 
@@ -123,6 +127,7 @@ void ed_in_free(ed_in_t* in) {
     free(in->lines[i].line);
   }
   free(in->lines);
+  free(in->file_name);
   if (in->fd >= 0) {
     close(in->fd);
   }
@@ -290,4 +295,8 @@ void ed_in_get_cursor_position(ed_in_t* in, size_t* row, size_t* column) {
 
 size_t ed_in_get_num_lines(ed_in_t* in) {
   return in->num_lines;
+}
+
+char* ed_in_get_file_name(ed_in_t* in) {
+  return in->file_name;
 }
