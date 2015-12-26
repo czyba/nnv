@@ -66,7 +66,7 @@ static void printf_tabs(tab_view_t* view) {
     }
     insert_characer_times(q, ' ', cols - written_cols);
     append_move_cursor(q, view->area.origin_x + 1, view->area.origin_y);
-    insert_characer_times(q, '-', cols - written_cols);
+    insert_characer_times(q, '-', cols);
     execute(q);
     free_command_queue(q);
     return;
