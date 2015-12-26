@@ -38,26 +38,21 @@ typedef struct editor_input_t {
 static int ed_in_read_line(line_t* line, char* buf, size_t length) {
   size_t i = 0;
   for (; i < length; i++) {
-    if (buf[i] == '\n') {
-      i++;
+    if (buf[i] == ASCII_LF) {
       break;
     }
   }
   size_t new_length;
   size_t new_pos = line->pos + i;
-  if (i != length && buf[i - 1] == '\n') {
-    new_length = next_pow_2(new_pos + 1);
-  } else {
-    new_length = next_pow_2(new_pos);
-  }
+  new_length = next_pow_2(new_pos);
   if (new_length > line->length) {
     line->line = realloc(line->line, new_length);
   }
   memcpy(line->line + line->pos, buf, i);
   line->length = new_length;
   line->pos = new_pos;
-  if (buf[i - 1] == '\n') {
-    line->pos--;
+  if(buf[i] == ASCII_LF) {
+    i++;
     i = -i;
   }
   return i;
@@ -197,10 +192,6 @@ void ed_in_delete_at_cursor(ed_in_t* in) {
     for (size_t i = in->column; i + 1 < in->lines[in->row].pos; i++) {
       in->lines[in->row].line[i] = in->lines[in->row].line[i + 1];
     }
-    //Copy \n if it exists...
-    if (in->row + 1 != in->num_lines) {
-      in->lines[in->row].line[in->lines[in->row].pos - 1] = in->lines[in->row].line[in->lines[in->row].pos];
-    }
     in->lines[in->row].pos--;
     //Make line buffer smaller if necessary
     if ((in->lines[in->row].pos > 0 && (in->lines[in->row].pos << 1) <= in->lines[in->row].length && in->row + 1 == in->num_lines) ||       //Last line
@@ -216,23 +207,14 @@ void ed_in_delete_at_cursor(ed_in_t* in) {
   size_t new_pos = c_line->pos + d_line->pos;
   size_t new_length;
   //1 merge line
-  if (in->row + 2 == in->num_lines) {
-    //Last line is somewhat special
-    new_length = next_pow_2(new_pos);
-    new_length = new_length ? new_length : 1;
-  } else {
-    new_length = next_pow_2(new_pos + 1);
-  }
+  new_length = next_pow_2(new_pos);
+  new_length = new_length ? new_length : 1;
   if (new_length > c_line->length) {
     c_line->line = realloc(c_line->line, new_length);
   }
   c_line->length = new_length;
   memcpy(c_line->line + c_line->pos, d_line->line, d_line->pos);
   c_line->pos = new_pos;
-  if (in->row + 2 != in->num_lines) {
-    //Copy the \n
-    c_line->line[c_line->pos] = '\n';
-  }
   //copy old lines
   free(d_line->line);
   for (size_t i = in->row + 1; i + 1 < in->num_lines; i++) {
@@ -277,7 +259,6 @@ void ed_in_input_LF(ed_in_t* in) {
     old_line->length <<= 1;
     old_line->line = realloc(old_line->line, old_line->length);
   }
-  old_line->line[old_line->pos] = '\n';
   in->row++;
   in->column = 0;
   in->controller_call_back((c_t*) in->controller, EDITOR_INPUT_ALL);
