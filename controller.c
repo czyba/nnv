@@ -19,14 +19,33 @@ struct controller_t {
 
 #include <stdio.h>
 
+static void close_tab(c_t* c) {
+  if(c->num_files == 0) {
+    return;
+  }
+  ed_free(c->ed_view[c->active_index]);
+  for(size_t i = c->active_index + 1; i < c->num_files; i++) {
+    c->ed_view[i - 1] = c->ed_view[i];
+  }
+  c->num_files--;
+  if(c->active_index == 0) {
+    c->active_index = 1;
+  }
+  c->active_index = c->active_index - 1;
+  c->ed_view = realloc(c->ed_view, c->num_files * sizeof(ed_view_t*));
+}
+
 static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
   if (callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE ||
       callback_type == EDITOR_INPUT_CURSOR) {
     ed_process_input_changed(c->ed_view[c->active_index], callback_type);
-  }
-  if (callback_type == TAB_CHANGED) {
+  } else if (callback_type == TAB_CHANGED) {
     tab_process_input_changed(c->tab_view, callback_type);
+  } else if(callback_type == TAB_CLOSED) {
+    tab_process_input_changed(c->tab_view, callback_type);
+    close_tab(c);
+    ed_process_input_changed(c->ed_view[c->active_index], EDITOR_INPUT_ALL);
   }
 }
 
@@ -177,6 +196,10 @@ void c_input_key(c_t* c, key_t k) {
     }
     case CTRL_S: {
       ed_in_save_file(in);
+      break;
+    }
+    case CTRL_W: {
+      tab_in_unregister_tab(tab_get_model(c->tab_view));
       break;
     }
     case ASCII_DEL: {

@@ -50,6 +50,23 @@ int tab_in_register_tab(tab_in_t* in, char* relative_file_path) {
   return 0;
 }
 
+void tab_in_unregister_tab(tab_in_t* in) {
+  if(in->num_tabs == 0) {
+    return;
+  }
+  free(in->tab_names[in->active_tab]);
+  for(size_t i = in->active_tab + 1; i < in->num_tabs; i++) {
+    in->tab_names[i - 1] = in->tab_names[i];
+  }
+  in->num_tabs--;
+  if(in->active_tab == 0) {
+    in->active_tab = 1;
+  }
+  in->active_tab = in->active_tab - 1;
+  in->tab_names = realloc(in->tab_names, in->num_tabs * sizeof(char*));
+  cb_do_callback(&in->cb, TAB_CLOSED);
+}
+
 void tab_next(tab_in_t* in) {
   if (in->num_tabs == 0) {
     return;

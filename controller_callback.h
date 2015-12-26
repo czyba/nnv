@@ -5,7 +5,8 @@ enum CALLBACK_TYPE {
   EDITOR_INPUT_ALL,
   EDITOR_INPUT_LINE,
   EDITOR_INPUT_CURSOR,
-  TAB_CHANGED
+  TAB_CHANGED,
+  TAB_CLOSED
 };
 
 typedef void (*controller_call_back_t)(void*, enum CALLBACK_TYPE);
