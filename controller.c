@@ -117,8 +117,6 @@ static void non_ascii_input(c_t* c, key_t k) {
   }
   case KEY_PG_UP: {
     ed_move_up_screen(view);
-    // area_t area = ed_get_area(view);
-    // ed_in_move_up_line(in, area.rows);
     break;
   }
   case KEY_PG_DOWN: {
@@ -146,6 +144,9 @@ void c_input_key(c_t* c, key_t k) {
       break;
     }
     case CTRL_P: {
+      if(c->active_index == 0) {
+        c->active_index = c->num_files;
+      }
       c->active_index = (c->active_index - 1) % c->num_files;
       while (c->active_index < 0) {
         c->active_index += c->num_files;
