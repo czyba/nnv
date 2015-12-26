@@ -53,7 +53,7 @@ static void normalize_area(int rows, int columns) {
   free_command_queue(q);
 }
 
-c_t* init_controller() {
+c_t* c_init_controller() {
   c_t* c = malloc(sizeof(c_t));
   c->ed_view = 0;
   c->num_files = 0;
@@ -64,7 +64,7 @@ c_t* init_controller() {
   return c;
 }
 
-void free_controller(c_t* c) {
+void c_free_controller(c_t* c) {
   for (size_t i = 0; i < c->num_files; i++) {
     ed_reset(c->ed_view[i]);
     ed_free(c->ed_view[i]);
@@ -72,7 +72,7 @@ void free_controller(c_t* c) {
   free(c);
 }
 
-void open_file(c_t* c, char* filename) {
+void c_open_file(c_t* c, char* filename) {
   c->num_files++;
   c->ed_view = realloc(c->ed_view, c->num_files * sizeof(ed_view_t*));
   ed_in_t* in = init_editor_input(&call_back, c);
@@ -128,7 +128,7 @@ static void non_ascii_input(c_t* c, key_t k) {
   }
 }
 
-void input_key(c_t* c, key_t k) {
+void c_input_key(c_t* c, key_t k) {
   ed_in_t* in = ed_get_model(c->ed_view[c->active_index]);
   if (k.ascii) {
     if (IS_PRINTABLE(k)) {

@@ -38,11 +38,11 @@ int main(int argc, char** argv) {
   }
 
   initTermios();
-  c_t* c = init_controller();
+  c_t* c = c_init_controller();
   (void) c;
 
   for (int i = 1; i < argc; i++) {
-    open_file(c, argv[i]);
+    c_open_file(c, argv[i]);
   }
 
   unsigned char tmp[10];
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     if (k.ascii && k.key == 0x11) {
       break;
     }
-    input_key(c, k);
+    c_input_key(c, k);
 
     // printf("read %lu: ", n);
     // for(unsigned int i = 0; i < n; i++) {
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     //
     // printf("ascii = %d, key = %c, nkey = %08x\n", k.ascii, k.key, k.nkey);
   }
-  free_controller(c);
+  c_free_controller(c);
   resetTermios();
 
   return 0;

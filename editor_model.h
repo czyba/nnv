@@ -1,5 +1,5 @@
-#ifndef _MODEL_H
-#define _MODEL_H
+#ifndef _EDITOR_MODEL_H
+#define _EDITOR_MODEL_H
 
 #include "input.h"
 

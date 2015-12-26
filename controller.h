@@ -7,10 +7,10 @@
 
 typedef struct controller_t c_t;
 
-c_t* init_controller();
-void free_controller(c_t* controller);
+c_t* c_init_controller();
+void c_free_controller(c_t* controller);
 
-void open_file(c_t* controller, char* filename);
-void input_key(c_t* controller, key_t key);
+void c_open_file(c_t* controller, char* filename);
+void c_input_key(c_t* controller, key_t key);
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _VIEW_H
-#define _VIEW_H
+#ifndef _EDITOR_VIEW_H
+#define _EDITOR_VIEW_H
 
 #include "editor_model.h"
 #include "screen.h"
