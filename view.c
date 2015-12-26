@@ -173,7 +173,7 @@ void ed_move_up_screen(ed_view_t* view) {
   size_t in_row, in_col;
   ed_in_get_cursor_position(in, &in_row, &in_col);
   if(in_row - view->area.rows > 0) {
-    view->file_x = view->file_x - view->area.rows;
+    view->file_x = view->file_x > view->area.rows ? view->file_x > view->area.rows : 0;
   }
   ed_in_move_up_line(in, view->area.rows);
   if(in_row - view->area.rows > 0) {
