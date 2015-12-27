@@ -55,34 +55,6 @@ static void print_tabs(tab_view_t* view) {
     return;
   }
   size_t cur_index = tab_get_index(view->in);
-  size_t total_size = 0;
-  for (size_t i = 0; i < num_tabs; i++) {
-    total_size += strlen(names[i]);
-  }
-  if (total_size + num_tabs * 3 - 1 <= cols) {
-    //all tabs fit on one page
-    size_t written_cols = total_size + num_tabs * 3 - 1;
-    for (size_t i = 0; i < num_tabs; i++) {
-      if (i == index) {
-        append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
-      }
-      insert_name(q, names[i]);
-      if (i == index) {
-        append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
-      }
-      if (i != num_tabs - 1) {
-        char c = '|';
-        append_output(q, &c, 1);
-      }
-    }
-    insert_characer_times(q, ' ', cols - written_cols);
-    append_move_cursor(q, view->area.origin_x + 1, view->area.origin_y);
-    insert_characer_times(q, '-', cols);
-    execute(q);
-    free_command_queue(q);
-    view->last_index = 0;
-    return;
-  }
   if (view->last_index > cur_index) {
     view->last_index = cur_index;
   }
