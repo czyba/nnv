@@ -23,6 +23,39 @@ Currently implemented features
     - Multitab support
   4.) Hotkeys
     - Save: CTRL + s
-    - Next Tab: CTRL + n, I wanted TAB and CTRL + TAB, but both are just tabs in a console :<
+    - Next Tab: CTRL + n, CTRL + TAB is just TAB
     - Previous Tab: CTRL + p
     - Quit without saving: CTRL + q
+    - Close Tab: CTRL + w
+
+Features I wish to implement at some point in no particular order:
+
+  1.) File Tree View (Similar to Sublime/Atom)
+    - Expandable / Collapsable directories
+    - Moving with arrow keys
+    - File search via input
+    - Fuzzy Search for Files
+  2.) Goto Line Dialog (Similar to Sublime/Atom)
+  3.) Search Dialog (Similar to Sublime/Atom)
+    - Word Search
+    - Regexp Search
+    - Word Replace
+    - Regexp Replacment (Simlilar to how Eclipse handles it)
+  4.) Editor
+    - Copy & Paste Support (Elementary feature actually...)
+    - Multicursor support (This one is probably one of the more difficult features)
+    - Syntax Highlighting
+    - Non-Ascii Input
+    - Spell Checking
+    - Word suggestion (Another feature that is probably somewhat difficult to add)
+    - Clean / Dirty detection
+    - Operating on files while other programs may operate on them as well
+  5.) Hotkey help view
+  6.) Resize window support
+
+Improvements I wish to implement at some point. Also in no particular order:
+  - Improve file handling. Currently no permission, write or open checks are done. Opening a file without permissions will most likely crash or result in undefined behaviour.
+  - Improve file caching. Currently the whole file is loaded and kept in memory.
+  - Improve callback mechanism by adding an additional (void*) parameter. This can be used to speed up redrawing in the editor.
+  - Improve Tab handling. I don't like how the current algorithm behaves when closing files.
+  - Improve redrawing in the editor. Currently if the window is too small, the content will not fit into the buffer, resulting in a skewed editor.
