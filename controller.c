@@ -136,7 +136,7 @@ static void non_ascii_input(c_t* c, key_t k) {
 
 void c_input_key(c_t* c, key_t k) {
   ed_in_t* in = tab_get_active_tab(c->tab_in);
-  if(in == NULL) {
+  if (in == NULL) {
     return;
   }
   if (k.ascii) {

@@ -1,14 +1,19 @@
 #include "tab_view.h"
 #include "screen.h"
 #include "termout.h"
+#include "basic_math.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <alloca.h>
 
+#include <stdio.h>
+#include <unistd.h>
+
 struct tab_view_t {
   area_t area;
   tab_in_t* in;
+  size_t last_index;
 };
 
 static void insert_characer_times(tcq_t* q, char c, size_t num) {
@@ -41,6 +46,7 @@ static void print_tabs(tab_view_t* view) {
   append_options(q, NO_OPTION, FG_BLACK, BG_WHITE);
   append_move_cursor(q, view->area.origin_x, view->area.origin_y);
   if (num_tabs == 0) {
+    //No tabs
     insert_characer_times(q, ' ', cols);
     append_move_cursor(q, view->area.origin_x + 1, view->area.origin_y);
     insert_characer_times(q, '-', cols);
@@ -48,21 +54,22 @@ static void print_tabs(tab_view_t* view) {
     free_command_queue(q);
     return;
   }
+  size_t cur_index = tab_get_index(view->in);
   size_t total_size = 0;
   for (size_t i = 0; i < num_tabs; i++) {
     total_size += strlen(names[i]);
   }
-  if (total_size + num_tabs * 3 - 1 < cols) {
+  if (total_size + num_tabs * 3 - 1 <= cols) {
+    //all tabs fit on one page
     size_t written_cols = total_size + num_tabs * 3 - 1;
-    insert_characer_times(q, ' ', (cols - written_cols) / 2);
     for (size_t i = 0; i < num_tabs; i++) {
       if (i == index) {
-      append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
-    }
-    insert_name(q, names[i]);
-    if (i == index) {
-      append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
-    }
+        append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
+      }
+      insert_name(q, names[i]);
+      if (i == index) {
+        append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
+      }
       if (i != num_tabs - 1) {
         char c = '|';
         append_output(q, &c, 1);
@@ -73,8 +80,71 @@ static void print_tabs(tab_view_t* view) {
     insert_characer_times(q, '-', cols);
     execute(q);
     free_command_queue(q);
+    view->last_index = 0;
     return;
   }
+  if (view->last_index > cur_index) {
+    view->last_index = cur_index;
+  }
+  size_t start, end;
+  for (start = view->last_index; start < cur_index || view->last_index == cur_index; start++) {
+    size_t cur_size = start == 0 ? 0 : 1;
+    for (end = start; end < num_tabs; end++) {
+      size_t el_size = 2 + strlen(names[end]);
+      if (end + 1 != num_tabs) {
+        el_size++;
+      }
+      if (cur_size + el_size > cols - 2) {
+        break;
+      }
+      cur_size += el_size;
+    }
+    if (end > cur_index || cur_index == view->last_index) {
+      break;
+    }
+  }
+  if (end < start) {
+    end = start;
+  }
+  view->last_index = start;
+  size_t written_cols = 0;
+  if (start != 0) {
+    char c = '<';
+    append_output(q, &c, 1);
+    written_cols++;
+  }
+  while (start < end) {
+    if (start == index) {
+      append_options(q, FONT_BOLD_ON, FG_RED, BG_WHITE);
+    }
+    written_cols += insert_name(q, names[start]);
+    if (start == index) {
+      append_options(q, FONT_BOLD_OFF, FG_BLACK, BG_WHITE);
+    }
+    if (start + 1 != num_tabs && cols - written_cols > 3) {
+      char c = '|';
+      append_output(q, &c, 1);
+      written_cols++;
+    }
+    start++;
+  }
+  if (cols - written_cols > 3 && start != num_tabs) {
+    char c = ' ';
+    append_output(q, &c, 1);
+    written_cols++;
+    size_t write_len = minu(strlen(names[start]), end != num_tabs ? cols - written_cols - 2 : cols - written_cols - 1);
+    append_output(q, names[start], write_len);
+    append_output(q, &c, 1);
+    written_cols += write_len + 1;
+  }
+  if (end != num_tabs) {
+    insert_characer_times(q, ' ', cols - written_cols - 1);
+    char c = '>';
+    append_output(q, &c, 1);
+  } else {
+    insert_characer_times(q, ' ', cols - written_cols);
+  }
+  execute(q);
   free_command_queue(q);
 }
 
@@ -85,6 +155,7 @@ tab_view_t* tab_init_editor(tab_in_t* in, int origin_x, int origin_y, int column
   view->area.rows = 2;
   view->area.columns = columns;
   view->in = in;
+  view->last_index = 0;
   print_tabs(view);
   return view;
 }
@@ -101,6 +172,5 @@ void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type) {
   if (type != TAB_CHANGED && type != TAB_CLOSED) {
     return;
   }
-  (void) view;
   print_tabs(view);
 }

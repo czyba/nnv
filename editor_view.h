@@ -15,7 +15,6 @@ void ed_register_model(ed_view_t* view, ed_in_t* model);
 void ed_unregister_active_model(ed_view_t* view);
 void ed_set_model_active(ed_view_t* view, ed_in_t* model);
 
-
 void ed_move_up_screen(ed_view_t* view);
 void ed_move_down_screen(ed_view_t* view);
 void ed_process_input_changed(ed_view_t* view, enum CALLBACK_TYPE type);
