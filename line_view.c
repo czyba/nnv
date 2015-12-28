@@ -85,7 +85,7 @@ void line_resize(line_view_t* view, size_t origin_x, size_t origin_y, size_t row
 
 void line_process_input_changed(line_view_t* view, enum CALLBACK_TYPE type) {
   switch (type) {
-  case EDITOR_AREA_CHANGED: {
+  case REDRAW: {
     print_lines(view);
     break;
   }

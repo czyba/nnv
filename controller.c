@@ -28,27 +28,71 @@ struct controller_t {
 
 static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
-  if (callback_type == REDRAW || callback_type == EDITOR_INPUT_LINE ||
-      callback_type == EDITOR_INPUT_CURSOR) {
+  switch (callback_type) {
+  case REDRAW:
+  case EDITOR_INPUT_LINE:
+  case EDITOR_INPUT_CURSOR: {
     ed_process_input_changed(c->ed_view, callback_type);
-  } else if (callback_type == TAB_CHANGED) {
+    break;
+  }
+  case EDITOR_NEXT_TAB: {
+    tab_next(c->tab_in);
+    ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
+    break;
+  }
+  case EDITOR_PREVIOUS_TAB: {
+    tab_previous(c->tab_in);
+    ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
+    break;
+  }
+  case EDITOR_PAGE_UP: {
+    ed_move_up_screen(c->ed_view);
+    break;
+  }
+  case EDITOR_PAGE_DOWN: {
+    ed_move_down_screen(c->ed_view);
+    break;
+  }
+  case EDITOR_TOGGLE_LINE_NUMBERING: {
+    ed_process_input_changed(c->ed_view, EDITOR_TOGGLE_LINE_NUMBERING);
+    break;
+  }
+  case EDITOR_CLOSE_TAB: {
+    tab_in_unregister_tab(c->tab_in);
+    break;
+  }
+  case TAB_CHANGED: {
     tab_process_input_changed(c->tab_view, callback_type);
-  } else if (callback_type == TAB_CLOSED) {
+    break;
+  }
+  case TAB_CLOSED: {
     tab_process_input_changed(c->tab_view, callback_type);
     ed_unregister_active_model(c->ed_view);
     ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
-  } else if (callback_type == GOTO_LINE_CHANGED) {
+    break;
+  }
+  case GOTO_LINE_OPEN: {
+    c->active_view = CONTROLLER_GOTO_LINE_ACTIVE;
+    goto_in_reset(c->goto_in);
+    break;
+  }
+  case GOTO_LINE_CHANGED: {
     goto_process_input_changed(c->goto_view, callback_type);
-  } else if (callback_type == GOTO_LINE_CLOSE) {
+    break;
+  }
+  case GOTO_LINE_CLOSE: {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
     tab_process_input_changed(c->tab_view, REDRAW);
     ed_process_input_changed(c->ed_view, EDITOR_INPUT_CURSOR);
-  } else if (callback_type == GOTO_LINE_EXECUTE) {
+    break;
+  }
+  case GOTO_LINE_EXECUTE: {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
     size_t line, col;
     goto_in_get_line_column(c->goto_in, &line, &col);
     tab_process_input_changed(c->tab_view, REDRAW);
     ed_in_goto_position(tab_get_active_tab(c->tab_in), line ? line - 1 : 0, col ? col - 1 : col);
+  }
   }
 }
 
@@ -117,103 +161,14 @@ void c_open_file(c_t* c, char* filename) {
   ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
 }
 
-static void non_ascii_input(c_t* c, key_t k) {
-  ed_in_t* in = tab_get_active_tab(c->tab_in);
-  switch (k.nkey & KEY_MASK) {
-  case KEY_UP: {
-    ed_in_move_up_line(in, 1);
-    break;
-  }
-  case KEY_DOWN: {
-    ed_in_move_down_line(in, 1);
-    break;
-  }
-  case KEY_RIGHT: {
-    ed_in_move_forward_character(in);
-    break;
-  }
-  case KEY_LEFT: {
-    ed_in_move_back_character(in);
-    break;
-  }
-  case KEY_DEL: {
-    ed_in_delete_at_cursor(in);
-    break;
-  }
-  case KEY_HOME: {
-    ed_in_move_home(in);
-    break;
-  }
-  case KEY_END: {
-    ed_in_move_end(in);
-    break;
-  }
-  case KEY_PG_UP: {
-    ed_move_up_screen(c->ed_view);
-    break;
-  }
-  case KEY_PG_DOWN: {
-    ed_move_down_screen(c->ed_view);
-    break;
-  }
-  }
-}
-
 void c_input_key(c_t* c, key_t k) {
   if (c->active_view == CONTROLLER_GOTO_LINE_ACTIVE) {
     goto_in_input_key(c->goto_in, k);
     return;
+  } else if (c->active_view == CONTROLLER_EDITOR_ACTIVE) {
+    ed_in_t* in = tab_get_active_tab(c->tab_in);
+    if (in) {
+      ed_in_input_key(in, k);
+    }
   }
-  ed_in_t* in = tab_get_active_tab(c->tab_in);
-  if (in == NULL) {
-    return;
-  }
-  if (k.ascii) {
-    if (IS_PRINTABLE(k)) {
-      ed_in_input_printable_character(in, k);
-      return;
-    }
-    switch (k.key) {
-    case ASCII_CR: {
-      ed_in_input_LF(in);
-      break;
-    }
-    case CTRL_G: {
-      c->active_view = CONTROLLER_GOTO_LINE_ACTIVE;
-      goto_in_reset(c->goto_in);
-      break;
-    }
-    case CTRL_N: {
-      tab_next(c->tab_in);
-      ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
-      break;
-    }
-    case CTRL_P: {
-      tab_previous(c->tab_in);
-      ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
-      break;
-    }
-    case CTRL_S: {
-      ed_in_save_file(in);
-      break;
-    }
-    case CTRL_W: {
-      tab_in_unregister_tab(c->tab_in);
-      break;
-    }
-    case CTRL_L: {
-      ed_process_input_changed(c->ed_view, EDITOR_TOGGLE_LINE_NUMBERING);
-      break;
-    }
-    case ASCII_DEL: {
-      if (!ed_in_at_origin(in)) {
-        ed_in_move_back_character(in);
-        ed_in_delete_at_cursor(in);
-      }
-      break;
-    }
-    }
-    return;
-  }
-  non_ascii_input(c, k);
 }

@@ -63,7 +63,7 @@ static void ed_redraw_everything(ed_view_t* ed) {
     ed_reset(ed);
     return;
   }
-  line_process_input_changed(ed->line_view, EDITOR_AREA_CHANGED);
+  line_process_input_changed(ed->line_view, REDRAW);
   size_t in_row, in_col;
   i_ref_t* ref = ed_get_active_ref(ed);
   ed_in_get_cursor_position(ref->in, &in_row, &in_col);

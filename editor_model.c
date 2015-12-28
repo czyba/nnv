@@ -200,7 +200,7 @@ void ed_in_move_home(ed_in_t* in) {
 
 void ed_in_move_end(ed_in_t* in) {
   in->column = in->lines[in->row].pos;
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_CURSOR);
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
 }
 
 void ed_in_delete_at_cursor(ed_in_t* in) {
@@ -316,4 +316,93 @@ size_t ed_in_get_num_lines(ed_in_t* in) {
 
 char* ed_in_get_file_name(ed_in_t* in) {
   return in->file_name;
+}
+
+static void non_ascii_input(ed_in_t* in, key_t k) {
+  switch (k.nkey & KEY_MASK) {
+  case KEY_UP: {
+    ed_in_move_up_line(in, 1);
+    break;
+  }
+  case KEY_DOWN: {
+    ed_in_move_down_line(in, 1);
+    break;
+  }
+  case KEY_RIGHT: {
+    ed_in_move_forward_character(in);
+    break;
+  }
+  case KEY_LEFT: {
+    ed_in_move_back_character(in);
+    break;
+  }
+  case KEY_DEL: {
+    ed_in_delete_at_cursor(in);
+    break;
+  }
+  case KEY_HOME: {
+    ed_in_move_home(in);
+    break;
+  }
+  case KEY_END: {
+    ed_in_move_end(in);
+    break;
+  }
+  case KEY_PG_UP: {
+    cb_do_callback(&in->cb, EDITOR_PAGE_UP);
+    break;
+  }
+  case KEY_PG_DOWN: {
+    cb_do_callback(&in->cb, EDITOR_PAGE_DOWN);
+    break;
+  }
+  }
+}
+
+void ed_in_input_key(ed_in_t* in, key_t k) {
+  if (k.ascii) {
+    if (IS_PRINTABLE(k)) {
+      ed_in_input_printable_character(in, k);
+      return;
+    }
+    switch (k.key) {
+    case ASCII_CR: {
+      ed_in_input_LF(in);
+      break;
+    }
+    case CTRL_G: {
+      cb_do_callback(&in->cb, GOTO_LINE_OPEN);
+      break;
+    }
+    case CTRL_N: {
+      cb_do_callback(&in->cb, EDITOR_NEXT_TAB);
+      break;
+    }
+    case CTRL_P: {
+      cb_do_callback(&in->cb, EDITOR_PREVIOUS_TAB);
+      break;
+    }
+    case CTRL_S: {
+      ed_in_save_file(in);
+      break;
+    }
+    case CTRL_W: {
+      cb_do_callback(&in->cb, EDITOR_CLOSE_TAB);
+      break;
+    }
+    case CTRL_L: {
+      cb_do_callback(&in->cb, EDITOR_TOGGLE_LINE_NUMBERING);
+      break;
+    }
+    case ASCII_DEL: {
+      if (!ed_in_at_origin(in)) {
+        ed_in_move_back_character(in);
+        ed_in_delete_at_cursor(in);
+      }
+      break;
+    }
+    }
+    return;
+  }
+  non_ascii_input(in, k);
 }

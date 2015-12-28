@@ -31,4 +31,6 @@ void ed_in_delete_at_cursor(ed_in_t* in);
 void ed_in_input_printable_character(ed_in_t* in, key_t k);
 void ed_in_input_LF(ed_in_t* in);
 
+void ed_in_input_key(ed_in_t* in, key_t k);
+
 #endif
