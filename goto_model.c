@@ -2,6 +2,7 @@
 #include "basic_math.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 struct goto_line_model_t {
   char* input;
@@ -95,6 +96,21 @@ static int goto_in_delete_character(goto_in_t* in) {
   return 1;
 }
 
+void goto_in_get_line_column(goto_in_t* model, size_t* line, size_t* column) {
+  if (model->colon_pos) {
+    if (model->colon_pos != model->length) {
+      sscanf(model->input, "%lu:%lu", line, column);
+      return;
+    }
+    *column = 0;
+    sscanf(model->input, "%lu:", line);
+    return;
+  }
+  *column = 0;
+  sscanf(model->input, "%lu", line);
+  return;
+}
+
 void goto_in_input_key(goto_in_t* model, key_t key) {
   if (key.ascii) {
     if (IS_DIGIT(key)) {
@@ -110,7 +126,9 @@ void goto_in_input_key(goto_in_t* model, key_t key) {
         model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
       }
     } else if (key.key == ASCII_ESC) {
-      //TODO: close
+      model->cb.cb(model->cb.controller, GOTO_LINE_CLOSE);
+    } else if (key.key == ASCII_CR && model->length) {
+      model->cb.cb(model->cb.controller, GOTO_LINE_EXECUTE);
     }
     return;
   }

@@ -134,6 +134,23 @@ void ed_in_free(ed_in_t* in) {
   free(in);
 }
 
+void ed_in_goto_position(ed_in_t* in, size_t row, size_t column) {
+  if (in->row == row && in->column == column) {
+    return;
+  }
+  if (row >= in->num_lines) {
+    in->row = in->num_lines - 1;
+  } else {
+    in->row = row;
+  }
+  if (column >= in->lines[in->row].pos) {
+    in->column = in->lines[in->row].pos;
+  } else {
+    in->column = column;
+  }
+  cb_do_callback(&in->cb, EDITOR_INPUT_CURSOR);
+}
+
 void ed_in_move_up_line(ed_in_t* in, size_t lines) {
   in->row = in->row > lines ? in->row - lines : 0;
   if (in->column > in->lines[in->row].pos) {

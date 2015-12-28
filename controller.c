@@ -39,6 +39,14 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
     ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
   } else if (callback_type == GOTO_LINE_CHANGED) {
     goto_process_input_changed(c->goto_view, callback_type);
+  } else if (callback_type == GOTO_LINE_CLOSE) {
+    c->active_view = CONTROLLER_EDITOR_ACTIVE;
+    //tab_process_input_changed(c->tab_view, TAB_CHANGED);
+  } else if (callback_type == GOTO_LINE_EXECUTE) {
+    c->active_view = CONTROLLER_EDITOR_ACTIVE;
+    size_t line, col;
+    goto_in_get_line_column(c->goto_in, &line, &col);
+    ed_in_goto_position(tab_get_active_tab(c->tab_in), line - 1, col ? col - 1 : col);
   }
 }
 

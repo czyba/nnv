@@ -12,6 +12,7 @@ void free_goto_in(goto_in_t* model);
 
 void goto_in_reset(goto_in_t* model);
 
+void goto_in_get_line_column(goto_in_t* model, size_t* line, size_t* column);
 void goto_in_input_key(goto_in_t* model, key_t key);
 
 size_t goto_in_get_pos(goto_in_t* model);
