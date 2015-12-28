@@ -9,6 +9,7 @@
 struct line_view_t {
   area_t area;
   ed_view_t* editor;
+  int active;
 };
 
 static inline int count_digits(int x) {
@@ -16,12 +17,13 @@ static inline int count_digits(int x) {
 }
 
 static void print_lines(line_view_t* view) {
+
   size_t start_row, rows;
   int has_input = !ed_get_visible_file_area(view->editor, &start_row, &rows);
-  int digits = count_digits(rows + start_row);
-  if (((size_t) digits + 1) != view->area.columns) {
+  int cols = !view->active ? 0 : count_digits(rows + start_row) + 1;
+  if (((size_t) cols) != view->area.columns) {
     size_t old_size = view->area.columns;
-    view->area.columns = digits + 1;
+    view->area.columns = cols;
     area_t ed_area = ed_get_screen_area(view->editor);
     ed_resize(view->editor, ed_area.origin_x, ed_area.origin_y - old_size + view->area.columns, ed_area.rows, ed_area.columns + old_size - view->area.columns);
     return;
@@ -64,6 +66,7 @@ line_view_t* line_init_editor(ed_view_t* editor, size_t origin_x, size_t origin_
   view->area.origin_y = origin_y;
   view->area.rows = rows;
   view->area.columns = columns;
+  view->active = 1;
   return view;
 }
 
