@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <math.h>
 #include <stdio.h>
 #include <termios.h>
 #include <sys/select.h>
@@ -30,10 +29,6 @@
   RESET_AND_RETURN(q, ret, origPos);                \
   INSERT_SEMICOLON_CONDITIONAL(q, ret, origPos);    \
   written += ret;
-
-inline int count_digits(int x) {
-  return floor(log10(abs(x))) + 1;
-}
 
 int append_CSI(tcq_t* q) {
   if (q == NULL) {

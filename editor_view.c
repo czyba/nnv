@@ -91,11 +91,11 @@ static void ed_move_cursor(ed_view_t* ed) {
 
 ed_view_t* ed_init_editor(size_t origin_x, size_t origin_y, size_t rows, size_t columns) {
   ed_view_t* ed = malloc(sizeof(ed_view_t));
-  ed->line_view = line_init_editor(ed, origin_x, origin_y, rows, 5);
+  ed->line_view = line_init_editor(ed, origin_x, origin_y, rows, 1);
   ed->area.origin_x = origin_x;
-  ed->area.origin_y = origin_y + 5;
+  ed->area.origin_y = origin_y + 1;
   ed->area.rows = rows;
-  ed->area.columns = columns - 5;
+  ed->area.columns = columns - 1;
   ed->active = 1;
   ed->refs = NULL;
   ed->num_refs = 0;
@@ -264,6 +264,10 @@ void ed_resize(ed_view_t* view, size_t origin_x, size_t origin_y, size_t rows, s
   view->area.rows = rows;
   view->area.columns = columns;
   ed_redraw_everything(view);
+}
+
+area_t ed_get_screen_area(ed_view_t* view) {
+  return view->area;
 }
 
 int ed_get_visible_file_area(ed_view_t* view, size_t* file_x, size_t* rows) {

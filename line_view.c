@@ -4,18 +4,31 @@
 #include <string.h> //memset
 #include "termout.h"
 #include <alloca.h> //alloca
+#include <math.h>   //floor, log10, abs
 
 struct line_view_t {
   area_t area;
   ed_view_t* editor;
 };
 
+static inline int count_digits(int x) {
+  return floor(log10(abs(x))) + 1;
+}
+
 static void print_lines(line_view_t* view) {
+  size_t start_row, rows;
+  int has_input = !ed_get_visible_file_area(view->editor, &start_row, &rows);
+  int digits = count_digits(rows + start_row);
+  if (((size_t) digits + 1) != view->area.columns) {
+    size_t old_size = view->area.columns;
+    view->area.columns = digits + 1;
+    area_t ed_area = ed_get_screen_area(view->editor);
+    ed_resize(view->editor, ed_area.origin_x, ed_area.origin_y - old_size + view->area.columns, ed_area.rows, ed_area.columns + old_size - view->area.columns);
+    return;
+  }
   size_t o_row, o_column;
   get_cursor_position(&o_row, &o_column);
   tcq_t* q = alloc_command_queue(view->area.rows * (view->area.columns + 20) + 40);
-  size_t start_row, rows;
-  int has_input = !ed_get_visible_file_area(view->editor, &start_row, &rows);
   append_move_cursor(q, view->area.origin_x, view->area.origin_y);
   append_options(q, FONT_DEFAULT, FG_BLACK, BG_WHITE);
   char* buf = alloca(view->area.columns);
