@@ -84,8 +84,16 @@ void line_resize(line_view_t* view, size_t origin_x, size_t origin_y, size_t row
 }
 
 void line_process_input_changed(line_view_t* view, enum CALLBACK_TYPE type) {
-  if (type != EDITOR_AREA_CHANGED) {
-    return;
+  switch (type) {
+  case EDITOR_AREA_CHANGED: {
+    print_lines(view);
+    break;
   }
-  print_lines(view);
+  case EDITOR_TOGGLE_LINE_NUMBERING: {
+    view->active = !view->active;
+    break;
+  }
+  default:
+    break;
+  }
 }

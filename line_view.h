@@ -12,4 +12,5 @@ void line_free(line_view_t* view);
 void line_process_input_changed(line_view_t* view, enum CALLBACK_TYPE type);
 
 void line_resize(line_view_t* view, size_t origin_x, size_t origin_y, size_t rows, size_t columns);
+
 #endif

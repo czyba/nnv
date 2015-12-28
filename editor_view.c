@@ -217,13 +217,27 @@ static void ed_process_line_changed(ed_view_t* ed) {
 }
 
 void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type) {
-  if (type == EDITOR_INPUT_CURSOR) {
+  switch (type) {
+  case EDITOR_INPUT_CURSOR: {
     ed_process_cursor_changed(ed);
-  } else if (type == EDITOR_INPUT_LINE) {
+    break;
+  }
+  case EDITOR_INPUT_LINE: {
     ed_process_line_changed(ed);
-  } else if (type == EDITOR_INPUT_ALL) {
+    break;
+  }
+  case EDITOR_INPUT_ALL: {
     ed_adapt_to_input_position(ed);
     ed_redraw_everything(ed);
+    break;
+  }
+  case EDITOR_TOGGLE_LINE_NUMBERING: {
+    line_process_input_changed(ed->line_view, EDITOR_TOGGLE_LINE_NUMBERING);
+    ed_redraw_everything(ed);
+    break;
+  }
+  default:
+    break;
   }
 }
 
