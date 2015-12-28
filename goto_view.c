@@ -23,17 +23,18 @@ static void goto_print_line(goto_view_t* view) {
   if (pos < view->in_y) {
     view->in_y = pos;
   }
-  if (pos >= view->in_y + view->area.columns) {
-    view->in_y = pos - view->area.columns;
+  size_t len = strlen(START_STRING);
+  if (pos > view->in_y + view->area.columns - len - 1) {
+    view->in_y = pos + len - view->area.columns + 1;
   }
   char* buf = alloca(view->area.columns);
-  size_t written = minu(strlen(START_STRING), view->area.columns);
+  size_t written = minu(len, view->area.columns);
   memcpy(buf, START_STRING, written);
   if (written < view->area.columns) {
     goto_in_fill_line(view->in, buf + written, view->in_y, view->area.columns - written, ' ');
   }
   append_output(q, buf, view->area.columns);
-  append_move_cursor(q, view->area.origin_x, view->area.origin_y + strlen(START_STRING) + pos - view->in_y);
+  append_move_cursor(q, view->area.origin_x, view->area.origin_y + len + pos - view->in_y);
   execute(q);
   free_command_queue(q);
 }
