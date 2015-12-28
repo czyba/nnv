@@ -39,13 +39,12 @@ Features I wish to implement at some point in no particular order:
     - Moving with arrow keys
     - File search via input
     - Fuzzy Search for Files
-  2.) Goto Line Dialog (Similar to Sublime/Atom)
-  3.) Search Dialog (Similar to Sublime/Atom)
+  2.) Search Dialog (Similar to Sublime/Atom)
     - Word Search
     - Regexp Search
     - Word Replace
     - Regexp Replacment (Simlilar to how Eclipse handles it)
-  4.) Editor
+  3.) Editor
     - Copy & Paste Support (Elementary feature actually...)
     - Multicursor support (This one is probably one of the more difficult features)
     - Syntax Highlighting
@@ -54,8 +53,8 @@ Features I wish to implement at some point in no particular order:
     - Word suggestion (Another feature that is probably somewhat difficult to add)
     - Clean / Dirty detection
     - Operating on files while other programs may operate on them as well
-  5.) Hotkey help view
-  6.) Resize window support
+  4.) Hotkey help view
+  5.) Resize window support
 
 Improvements I wish to implement at some point. Also in no particular order:
   - Improve file handling. Currently no permission, write or open checks are done. Opening a file without permissions will most likely crash or result in undefined behaviour.
