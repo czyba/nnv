@@ -145,7 +145,7 @@ void c_input_key(c_t* c, key_t k) {
       return;
     }
     switch (k.key) {
-    case CTRL_M: {
+    case ASCII_CR: {
       ed_in_input_LF(in);
       break;
     }

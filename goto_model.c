@@ -20,7 +20,7 @@ goto_in_t* init_goto_in(controller_call_back_t cb, c_t* controller) {
   return in;
 }
 void free_goto_in(goto_in_t* model) {
-  if(model->length) {
+  if (model->length) {
     free(model->input);
   }
   free(model);
@@ -29,7 +29,7 @@ void free_goto_in(goto_in_t* model) {
 static void goto_in_input_character(goto_in_t* in, char c) {
   in->length++;
   in->input = realloc(in->input, in->length);
-  for(size_t i = in->pos + 1; i < in->length; i++) {
+  for (size_t i = in->pos + 1; i < in->length; i++) {
     in->input[i] = in->input[i - 1];
   }
   in->input[in->pos] = c;
@@ -37,17 +37,17 @@ static void goto_in_input_character(goto_in_t* in, char c) {
 }
 
 static int goto_in_move_cursor(goto_in_t* in, int steps) {
-  if(in->pos >= in->length && steps >= 0) {
+  if (in->pos >= in->length && steps >= 0) {
     return 0;
   }
-  if(in->pos == 0 && steps <= 0) {
+  if (in->pos == 0 && steps <= 0) {
     return 0;
   }
-  if(in->pos + steps > in->length) {
+  if (in->pos + steps > in->length) {
     in->pos = in->length;
     return 1;
   }
-  if(steps < 0 && (size_t) abs(steps) > in->pos) {
+  if (steps < 0 && (size_t) abs(steps) > in->pos) {
     in->pos = 0;
     return 1;
   }
@@ -56,13 +56,13 @@ static int goto_in_move_cursor(goto_in_t* in, int steps) {
 }
 
 static int goto_in_delete_character(goto_in_t* in) {
-  if(in->pos == in->length){
+  if (in->pos == in->length) {
     return 0;
   }
-  if(in->input[in->pos] == ':') {
+  if (in->input[in->pos] == ':') {
     in->colon_pos = 0;
   }
-  for(size_t i = in->pos + 1; i < in->length; i++) {
+  for (size_t i = in->pos + 1; i < in->length; i++) {
     in->input[i - 1] = in->input[i];
   }
   in->length--;
@@ -71,14 +71,14 @@ static int goto_in_delete_character(goto_in_t* in) {
 }
 
 void goto_in_input_key(goto_in_t* model, key_t key) {
-  if(key.ascii) {
-    if(IS_DIGIT(key)) {
+  if (key.ascii) {
+    if (IS_DIGIT(key)) {
       goto_in_input_character(model, key.key);
-    } else if(key.key == ':' && model->pos != 0 && model->colon_pos == 0) {
+    } else if (key.key == ':' && model->pos != 0 && model->colon_pos == 0) {
       model->colon_pos = model->pos;
       goto_in_input_character(model, key.key);
-    } else if(key.key == ASCII_DEL && model->pos != 0) {
-      if(goto_in_move_cursor(model, -1)) {
+    } else if (key.key == ASCII_DEL && model->pos != 0) {
+      if (goto_in_move_cursor(model, -1)) {
         goto_in_delete_character(model);
       }
     } else if (key.key == ASCII_ESC) {
@@ -86,38 +86,38 @@ void goto_in_input_key(goto_in_t* model, key_t key) {
     }
     return;
   }
-  switch(key.nkey & KEY_MASK) {
-    case KEY_LEFT: {
-      if(goto_in_move_cursor(model, -1)) {
-        //TODO: callback
-      }
-      break;
+  switch (key.nkey & KEY_MASK) {
+  case KEY_LEFT: {
+    if (goto_in_move_cursor(model, -1)) {
+      //TODO: callback
     }
-    case KEY_RIGHT: {
-      if(goto_in_move_cursor(model, 1)) {
-        //TODO: callback
-      }
-      break;
+    break;
+  }
+  case KEY_RIGHT: {
+    if (goto_in_move_cursor(model, 1)) {
+      //TODO: callback
     }
-    case KEY_HOME: {
-      if(goto_in_move_cursor(model, - ((int) model->length))) {
-        //TODO: callback
-      }
-      break;
+    break;
+  }
+  case KEY_HOME: {
+    if (goto_in_move_cursor(model, -((int) model->length))) {
+      //TODO: callback
     }
-    case KEY_END: {
-      if(goto_in_move_cursor(model, model->length)) {
-        //TODO: callback
-      }
-      break;
+    break;
+  }
+  case KEY_END: {
+    if (goto_in_move_cursor(model, model->length)) {
+      //TODO: callback
     }
-    case KEY_DEL: {
-      if(goto_in_delete_character(model)) {
-        //TODO: callback
-      }
-      break;
+    break;
+  }
+  case KEY_DEL: {
+    if (goto_in_delete_character(model)) {
+      //TODO: callback
     }
-    default:
+    break;
+  }
+  default:
     break;
   }
 }
