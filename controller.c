@@ -169,6 +169,7 @@ void c_input_key(c_t* c, key_t k) {
     }
     case CTRL_L: {
       ed_process_input_changed(c->ed_view, EDITOR_TOGGLE_LINE_NUMBERING);
+      break;
     }
     case ASCII_DEL: {
       if (!ed_in_at_origin(in)) {
