@@ -21,12 +21,14 @@ Currently implemented features
   3.) Features:
     - Opening Multiple Textfiles
     - Multitab support
+    - Line numbering
   4.) Hotkeys
     - Save: CTRL + s
     - Next Tab: CTRL + n, CTRL + TAB is just TAB
     - Previous Tab: CTRL + p
     - Quit without saving: CTRL + q
     - Close Tab: CTRL + w
+    - Toggle Line Numbering On/Off: CTRL + l
 
 Features I wish to implement at some point in no particular order:
 
