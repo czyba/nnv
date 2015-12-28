@@ -1,5 +1,7 @@
 #include "goto_model.h"
+#include "basic_math.h"
 #include <stdlib.h>
+#include <string.h>
 
 struct goto_line_model_t {
   char* input;
@@ -24,6 +26,18 @@ void free_goto_in(goto_in_t* model) {
     free(model->input);
   }
   free(model);
+}
+
+size_t goto_in_get_pos(goto_in_t* model) {
+  return model->pos;
+}
+
+void goto_in_fill_line(goto_in_t* model, char* buf, size_t start, size_t length, char fill_character) {
+  size_t written = minu(length, model->length - model->pos);
+  memcpy(buf, model->input + start, written);
+  if (written < length) {
+    memset(buf + written, fill_character, length - written);
+  }
 }
 
 static void goto_in_input_character(goto_in_t* in, char c) {

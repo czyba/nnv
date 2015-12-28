@@ -12,4 +12,7 @@ void free_goto_in(goto_in_t* model);
 
 void goto_in_input_key(goto_in_t* model, key_t key);
 
+size_t goto_in_get_pos(goto_in_t* model);
+void goto_in_fill_line(goto_in_t* model, char* buf, size_t start, size_t length, char fill_character);
+
 #endif
