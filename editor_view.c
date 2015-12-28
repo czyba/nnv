@@ -1,6 +1,8 @@
 #include "editor_view.h"
 #include "editor_model.h"
 #include "termout.h"
+#include "line_view.h"
+#include "basic_math.h"
 #include <stdlib.h>
 #include <string.h>
 #include <alloca.h>
@@ -40,6 +42,7 @@ struct editor_view_t {
   i_ref_t* refs;
   size_t active;
   size_t num_refs;
+  line_view_t* line_view;
 };
 
 static i_ref_t* ed_get_active_ref(ed_view_t* ed) {
@@ -60,6 +63,7 @@ static void ed_redraw_everything(ed_view_t* ed) {
     ed_reset(ed);
     return;
   }
+  line_process_input_changed(ed->line_view, EDITOR_AREA_CHANGED);
   size_t in_row, in_col;
   i_ref_t* ref = ed_get_active_ref(ed);
   ed_in_get_cursor_position(ref->in, &in_row, &in_col);
@@ -87,10 +91,11 @@ static void ed_move_cursor(ed_view_t* ed) {
 
 ed_view_t* ed_init_editor(size_t origin_x, size_t origin_y, size_t rows, size_t columns) {
   ed_view_t* ed = malloc(sizeof(ed_view_t));
+  ed->line_view = line_init_editor(ed, origin_x, origin_y, rows, 5);
   ed->area.origin_x = origin_x;
-  ed->area.origin_y = origin_y;
+  ed->area.origin_y = origin_y + 5;
   ed->area.rows = rows;
-  ed->area.columns = columns;
+  ed->area.columns = columns - 5;
   ed->active = 1;
   ed->refs = NULL;
   ed->num_refs = 0;
@@ -102,6 +107,7 @@ void ed_free(ed_view_t* view) {
   if (view->num_refs) {
     free(view->refs);
   }
+  line_free(view->line_view);
   free(view);
 }
 
@@ -260,17 +266,15 @@ void ed_resize(ed_view_t* view, size_t origin_x, size_t origin_y, size_t rows, s
   ed_redraw_everything(view);
 }
 
-void ed_get_file_area(ed_view_t* view, size_t* file_x, size_t* file_y, size_t* rows, size_t* columns){
-  if(file_x) {
+int ed_get_visible_file_area(ed_view_t* view, size_t* file_x, size_t* rows) {
+  if (!view->num_refs) {
+    return 1;
+  }
+  if (file_x) {
     (*file_x) = ed_get_active_ref(view)->file_x;
   }
-  if(file_y) {
-    (*file_y) = ed_get_active_ref(view)->file_x;
+  if (rows) {
+    (*rows) = minu(ed_in_get_num_lines(ed_get_active_ref(view)->in) - ed_get_active_ref(view)->file_x, view->area.rows);
   }
-  if(rows) {
-    (*rows) = view->area.rows;
-  }
-  if(columns) {
-    (*columns) = view->area.columns;
-  }
+  return 0;
 }

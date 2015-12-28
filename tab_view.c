@@ -144,7 +144,7 @@ void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type) {
   if (type != TAB_CHANGED && type != TAB_CLOSED) {
     return;
   }
-  if(type == TAB_CLOSED) {
+  if (type == TAB_CLOSED) {
     view->last_index = 0;
   }
   print_tabs(view);
