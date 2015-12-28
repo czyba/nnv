@@ -42,7 +42,7 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   } else if (callback_type == GOTO_LINE_CLOSE) {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
     tab_process_input_changed(c->tab_view, REDRAW);
-    tab_process_input_changed(c->tab_view, EDITOR_INPUT_CURSOR);
+    ed_process_input_changed(c->ed_view, EDITOR_INPUT_CURSOR);
   } else if (callback_type == GOTO_LINE_EXECUTE) {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
     size_t line, col;
