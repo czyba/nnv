@@ -97,6 +97,8 @@ static int goto_in_delete_character(goto_in_t* in) {
 }
 
 void goto_in_get_line_column(goto_in_t* model, size_t* line, size_t* column) {
+  model->input = realloc(model->input, model->length + 1);
+  model->input[model->length] = 0;
   if (model->colon_pos) {
     if (model->colon_pos != model->length) {
       sscanf(model->input, "%lu:%lu", line, column);
