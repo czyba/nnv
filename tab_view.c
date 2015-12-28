@@ -149,3 +149,10 @@ void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type) {
   }
   print_tabs(view);
 }
+
+void tab_resize(tab_view_t* view, size_t origin_x, size_t origin_y, size_t columns) {
+  view->area.origin_x = origin_x;
+  view->area.origin_y = origin_y;
+  view->area.columns = columns;
+  print_tabs(view);
+}

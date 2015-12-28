@@ -12,4 +12,6 @@ tab_in_t* tab_get_model(tab_view_t* view);
 
 void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type);
 
+void tab_resize(tab_view_t* view, size_t origin_x, size_t origin_y, size_t columns);
+
 #endif

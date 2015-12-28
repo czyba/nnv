@@ -11,7 +11,7 @@ int free_command_queue(tcq_t* queue);
 
 int reset_queue(tcq_t* queue);
 
-int get_cursor_position(int* line, int* column);
+int get_cursor_position(size_t* line, size_t* column);
 int append_move_cursor(tcq_t* queue, int x, int y);
 
 //TODO: enum!

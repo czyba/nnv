@@ -30,9 +30,9 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   }
 }
 
-static void get_area_size(int* rows, int* columns) {
+static void get_area_size(size_t* rows, size_t* columns) {
   tcq_t* q = alloc_command_queue(32);
-  int olines, ocolumns;
+  size_t olines, ocolumns;
   // Temporarily store our positon
   get_cursor_position(&olines, &ocolumns);
   // Go to the bottom right corner
@@ -66,7 +66,7 @@ static void normalize_area(int rows, int columns, int from_origin) {
 c_t* c_init_controller() {
   c_t* c = malloc(sizeof(c_t));
   c->ed_view = NULL;
-  int rows, columns;
+  size_t rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns, 0);
   c->tab_in = init_tab_input(&call_back, c);
@@ -78,7 +78,7 @@ c_t* c_init_controller() {
 void c_free_controller(c_t* c) {
   ed_free(c->ed_view);
   tab_free(c->tab_view);
-  int rows, columns;
+  size_t rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns, 1);
   free(c);

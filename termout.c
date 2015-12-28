@@ -101,7 +101,7 @@ int free_command_queue(tcq_t* q) {
   return 0;
 }
 
-int get_cursor_position(int* line, int* column) {
+int get_cursor_position(size_t* line, size_t* column) {
   struct termios term, initial_term;
   int success = 0;
   fd_set readset;
@@ -127,7 +127,7 @@ int get_cursor_position(int* line, int* column) {
 
   //If it success we try to read the cursor value
   if (select(STDIN_FILENO + 1, &readset, NULL, NULL, NULL) == 1) {
-    int ret = scanf("\033[%d;%dR", line, column);
+    int ret = scanf("\033[%lu;%luR", line, column);
     if (ret != 2) {
       success = -1;
     }

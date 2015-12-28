@@ -85,7 +85,7 @@ static void ed_move_cursor(ed_view_t* ed) {
   free_command_queue(q);
 }
 
-ed_view_t* ed_init_editor(int origin_x, int origin_y, int rows, int columns) {
+ed_view_t* ed_init_editor(size_t origin_x, size_t origin_y, size_t rows, size_t columns) {
   ed_view_t* ed = malloc(sizeof(ed_view_t));
   ed->area.origin_x = origin_x;
   ed->area.origin_y = origin_y;
@@ -249,5 +249,28 @@ void ed_move_down_screen(ed_view_t* view) {
   ed_in_move_down_line(ref->in, view->area.rows);
   if (in_row + view->area.rows < in_num_lines - 1) {
     ed_redraw_everything(view);
+  }
+}
+
+void ed_resize(ed_view_t* view, size_t origin_x, size_t origin_y, size_t rows, size_t columns) {
+  view->area.origin_x = origin_x;
+  view->area.origin_y = origin_y;
+  view->area.rows = rows;
+  view->area.columns = columns;
+  ed_redraw_everything(view);
+}
+
+void ed_get_file_area(ed_view_t* view, size_t* file_x, size_t* file_y, size_t* rows, size_t* columns){
+  if(file_x) {
+    (*file_x) = ed_get_active_ref(view)->file_x;
+  }
+  if(file_y) {
+    (*file_y) = ed_get_active_ref(view)->file_x;
+  }
+  if(rows) {
+    (*rows) = view->area.rows;
+  }
+  if(columns) {
+    (*columns) = view->area.columns;
   }
 }
