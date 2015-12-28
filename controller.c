@@ -28,7 +28,7 @@ struct controller_t {
 
 static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
   c_t* c = (c_t*) controller;
-  if (callback_type == EDITOR_INPUT_ALL || callback_type == EDITOR_INPUT_LINE ||
+  if (callback_type == REDRAW || callback_type == EDITOR_INPUT_LINE ||
       callback_type == EDITOR_INPUT_CURSOR) {
     ed_process_input_changed(c->ed_view, callback_type);
   } else if (callback_type == TAB_CHANGED) {
@@ -41,12 +41,14 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
     goto_process_input_changed(c->goto_view, callback_type);
   } else if (callback_type == GOTO_LINE_CLOSE) {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
-    //tab_process_input_changed(c->tab_view, TAB_CHANGED);
+    tab_process_input_changed(c->tab_view, REDRAW);
+    tab_process_input_changed(c->tab_view, EDITOR_INPUT_CURSOR);
   } else if (callback_type == GOTO_LINE_EXECUTE) {
     c->active_view = CONTROLLER_EDITOR_ACTIVE;
     size_t line, col;
     goto_in_get_line_column(c->goto_in, &line, &col);
-    ed_in_goto_position(tab_get_active_tab(c->tab_in), line - 1, col ? col - 1 : col);
+    tab_process_input_changed(c->tab_view, REDRAW);
+    ed_in_goto_position(tab_get_active_tab(c->tab_in), line ? line - 1 : 0, col ? col - 1 : col);
   }
 }
 

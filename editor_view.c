@@ -226,7 +226,7 @@ void ed_process_input_changed(ed_view_t* ed, enum CALLBACK_TYPE type) {
     ed_process_line_changed(ed);
     break;
   }
-  case EDITOR_INPUT_ALL: {
+  case REDRAW: {
     ed_adapt_to_input_position(ed);
     ed_redraw_everything(ed);
     break;

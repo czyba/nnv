@@ -141,7 +141,7 @@ tab_in_t* tab_get_model(tab_view_t* view) {
 }
 
 void tab_process_input_changed(tab_view_t* view, enum CALLBACK_TYPE type) {
-  if (type != TAB_CHANGED && type != TAB_CLOSED) {
+  if (type != TAB_CHANGED && type != TAB_CLOSED && type != REDRAW) {
     return;
   }
   if (type == TAB_CLOSED) {

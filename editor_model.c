@@ -244,7 +244,7 @@ void ed_in_delete_at_cursor(ed_in_t* in) {
   //resize lines
   in->num_lines--;
   in->lines = realloc(in->lines, sizeof(line_t) * in->num_lines);
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_ALL);
+  in->cb.cb((c_t*) in->cb.controller, REDRAW);
 }
 
 void ed_in_input_printable_character(ed_in_t* in, key_t k) {
@@ -278,7 +278,7 @@ void ed_in_input_LF(ed_in_t* in) {
   old_line->pos = in->column;
   in->row++;
   in->column = 0;
-  in->cb.cb((c_t*) in->cb.controller, EDITOR_INPUT_ALL);
+  in->cb.cb((c_t*) in->cb.controller, REDRAW);
 }
 
 int ed_in_at_origin(ed_in_t* in) {
