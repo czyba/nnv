@@ -43,9 +43,9 @@ Features I wish to implement at some point in no particular order:
     - Word Search
     - Regexp Search
     - Word Replace
-    - Regexp Replacment (Simlilar to how Eclipse handles it)
+    - Regexp Replacment (Similar to how Eclipse handles it)
   3.) Editor
-    - Copy & Paste Support (Elementary feature actually...)
+    - Copy & Paste Support
     - Multicursor support (This one is probably one of the more difficult features)
     - Syntax Highlighting
     - Non-Ascii Input
