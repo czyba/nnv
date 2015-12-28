@@ -147,6 +147,7 @@ c_t* c_init_controller() {
 void c_free_controller(c_t* c) {
   ed_free(c->ed_view);
   tab_free(c->tab_view);
+  goto_free(c->goto_view);
   size_t rows, columns;
   get_area_size(&rows, &columns);
   normalize_area(rows, columns, 1);
