@@ -10,6 +10,8 @@ typedef struct goto_line_model_t goto_in_t;
 goto_in_t* init_goto_in(controller_call_back_t cb, c_t* controller);
 void free_goto_in(goto_in_t* model);
 
+void goto_in_reset(goto_in_t* model);
+
 void goto_in_input_key(goto_in_t* model, key_t key);
 
 size_t goto_in_get_pos(goto_in_t* model);

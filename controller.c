@@ -9,11 +9,21 @@
 #include "screen.h"
 #include "tab_view.h"
 #include "tab_model.h"
+#include "goto_model.h"
+#include "goto_view.h"
+
+#define CONTROLLER_EDITOR_ACTIVE 0
+#define CONTROLLER_GOTO_LINE_ACTIVE 1
 
 struct controller_t {
   tab_in_t* tab_in;
   tab_view_t* tab_view;
   ed_view_t* ed_view;
+
+  goto_in_t* goto_in;
+  goto_view_t* goto_view;
+
+  int active_view;
 };
 
 static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
@@ -27,6 +37,8 @@ static void call_back(void* controller, enum CALLBACK_TYPE callback_type) {
     tab_process_input_changed(c->tab_view, callback_type);
     ed_unregister_active_model(c->ed_view);
     ed_set_model_active(c->ed_view, tab_get_active_tab(c->tab_in));
+  } else if (callback_type == GOTO_LINE_CHANGED) {
+    goto_process_input_changed(c->goto_view, callback_type);
   }
 }
 
@@ -72,6 +84,9 @@ c_t* c_init_controller() {
   c->tab_in = init_tab_input(&call_back, c);
   c->tab_view = tab_init_editor(c->tab_in, 1, 1, columns);
   c->ed_view = ed_init_editor(3, 1, rows - 2, columns);
+  c->active_view = CONTROLLER_EDITOR_ACTIVE;
+  c->goto_in = init_goto_in(&call_back, c);
+  c->goto_view = goto_init_view(c->goto_in, 1, 1, columns);
   return c;
 }
 
@@ -135,6 +150,10 @@ static void non_ascii_input(c_t* c, key_t k) {
 }
 
 void c_input_key(c_t* c, key_t k) {
+  if (c->active_view == CONTROLLER_GOTO_LINE_ACTIVE) {
+    goto_in_input_key(c->goto_in, k);
+    return;
+  }
   ed_in_t* in = tab_get_active_tab(c->tab_in);
   if (in == NULL) {
     return;
@@ -147,6 +166,11 @@ void c_input_key(c_t* c, key_t k) {
     switch (k.key) {
     case ASCII_CR: {
       ed_in_input_LF(in);
+      break;
+    }
+    case CTRL_G: {
+      c->active_view = CONTROLLER_GOTO_LINE_ACTIVE;
+      goto_in_reset(c->goto_in);
       break;
     }
     case CTRL_N: {

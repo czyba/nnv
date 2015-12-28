@@ -30,7 +30,7 @@ static void goto_print_line(goto_view_t* view) {
   size_t written = minu(strlen(START_STRING), view->area.columns);
   memcpy(buf, START_STRING, written);
   if (written < view->area.columns) {
-    goto_in_fill_line(view->in, buf, written, view->area.columns - written, ' ');
+    goto_in_fill_line(view->in, buf + written, view->in_y, view->area.columns - written, ' ');
   }
   append_output(q, buf, view->area.columns);
   append_move_cursor(q, view->area.origin_x, view->area.origin_y + strlen(START_STRING) + pos - view->in_y);

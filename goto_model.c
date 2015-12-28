@@ -33,11 +33,22 @@ size_t goto_in_get_pos(goto_in_t* model) {
 }
 
 void goto_in_fill_line(goto_in_t* model, char* buf, size_t start, size_t length, char fill_character) {
-  size_t written = minu(length, model->length - model->pos);
+  size_t written = minu(length, model->length - start);
   memcpy(buf, model->input + start, written);
   if (written < length) {
     memset(buf + written, fill_character, length - written);
   }
+}
+
+void goto_in_reset(goto_in_t* in) {
+  if (in->length) {
+    in->length = 0;
+    in->colon_pos = 0;
+    in->pos = 0;
+    free(in->input);
+    in->input = NULL;
+  }
+  in->cb.cb(in->cb.controller, GOTO_LINE_CHANGED);
 }
 
 static void goto_in_input_character(goto_in_t* in, char c) {
@@ -88,12 +99,15 @@ void goto_in_input_key(goto_in_t* model, key_t key) {
   if (key.ascii) {
     if (IS_DIGIT(key)) {
       goto_in_input_character(model, key.key);
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     } else if (key.key == ':' && model->pos != 0 && model->colon_pos == 0) {
       model->colon_pos = model->pos;
       goto_in_input_character(model, key.key);
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     } else if (key.key == ASCII_DEL && model->pos != 0) {
       if (goto_in_move_cursor(model, -1)) {
         goto_in_delete_character(model);
+        model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
       }
     } else if (key.key == ASCII_ESC) {
       //TODO: close
@@ -103,31 +117,31 @@ void goto_in_input_key(goto_in_t* model, key_t key) {
   switch (key.nkey & KEY_MASK) {
   case KEY_LEFT: {
     if (goto_in_move_cursor(model, -1)) {
-      //TODO: callback
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     }
     break;
   }
   case KEY_RIGHT: {
     if (goto_in_move_cursor(model, 1)) {
-      //TODO: callback
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     }
     break;
   }
   case KEY_HOME: {
     if (goto_in_move_cursor(model, -((int) model->length))) {
-      //TODO: callback
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     }
     break;
   }
   case KEY_END: {
     if (goto_in_move_cursor(model, model->length)) {
-      //TODO: callback
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     }
     break;
   }
   case KEY_DEL: {
     if (goto_in_delete_character(model)) {
-      //TODO: callback
+      model->cb.cb(model->cb.controller, GOTO_LINE_CHANGED);
     }
     break;
   }
