@@ -17,7 +17,6 @@ static inline int count_digits(int x) {
 }
 
 static void print_lines(line_view_t* view) {
-
   size_t start_row, rows;
   int has_input = !ed_get_visible_file_area(view->editor, &start_row, &rows);
   int cols = !view->active ? 0 : count_digits(rows + start_row) + 1;
@@ -26,6 +25,8 @@ static void print_lines(line_view_t* view) {
     view->area.columns = cols;
     area_t ed_area = ed_get_screen_area(view->editor);
     ed_resize(view->editor, ed_area.origin_x, ed_area.origin_y - old_size + view->area.columns, ed_area.rows, ed_area.columns + old_size - view->area.columns);
+  }
+  if (!cols) {
     return;
   }
   size_t o_row, o_column;

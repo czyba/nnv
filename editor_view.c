@@ -263,7 +263,6 @@ void ed_resize(ed_view_t* view, size_t origin_x, size_t origin_y, size_t rows, s
   view->area.origin_y = origin_y;
   view->area.rows = rows;
   view->area.columns = columns;
-  ed_redraw_everything(view);
 }
 
 area_t ed_get_screen_area(ed_view_t* view) {
