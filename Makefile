@@ -9,7 +9,7 @@ CXXFLAGS=$(CFLAGS)
 NAME=nnv
 
 all:
-	$(CC) $(CFLAGS) -lm -o $(NAME) termout.c main.c input.c editor_model.c editor_view.c controller.c basic_math.c controller_callback.c tab_model.c tab_view.c line_view.c
+	$(CC) $(CFLAGS) -lm -o $(NAME) termout.c main.c input.c editor_model.c editor_view.c controller.c basic_math.c controller_callback.c tab_model.c tab_view.c line_view.c goto_model.c
 
 format:
 	$(FORMAT) -i *.h *.c
