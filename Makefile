@@ -1,4 +1,4 @@
 CCX=clang++
 
 all:
-	$(CCX) src/main.cpp -o nnv
+	$(CCX) -I src src/terminal_out.cpp src/main.cpp -o nnv -std=c++11

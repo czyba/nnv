@@ -3,9 +3,8 @@
 
 using namespace std;
 
-int main()
-{
-    cout << "Hello world!" << endl;
-    tout << 1;
-    return 0;
+int main() {
+  cout << "Hello world!" << endl;
+  nnv::tout << "1asd";
+  return 0;
 }
