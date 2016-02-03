@@ -5,6 +5,7 @@ using namespace std;
 
 int main() {
   cout << "Hello world!" << endl;
-  nnv::tout << "1asd";
+  string s("1asd");
+  nnv::tout << s;
   return 0;
 }
