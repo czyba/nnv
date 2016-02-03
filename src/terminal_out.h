@@ -8,7 +8,7 @@ namespace nnv {
 class terminal_out {
 public:
   terminal_out();
-  terminal_out &operator<<(std::string &s);
+  terminal_out& operator<<(std::string& s);
 
 protected:
 private:

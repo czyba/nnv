@@ -11,7 +11,7 @@ terminal_out::terminal_out() {
   // ctor
 }
 
-terminal_out &terminal_out::operator<<(String &s) {
+terminal_out& terminal_out::operator<<(String& s) {
   write(1, s.c_str(), s.length(););
   return *this;
 }
