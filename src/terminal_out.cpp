@@ -1,5 +1,5 @@
-#include "terminal_out.h"
-#include "unistd.h"
+#include <unistd.h>
+#include <terminal_out.h>
 
 using namespace std;
 
@@ -18,6 +18,11 @@ terminal_out& terminal_out::operator<<(const string& s) {
 
 terminal_out& terminal_out::operator<<(const char* s) {
   write(1, s, strlen(s));
+  return *this;
+}
+
+terminal_out& terminal_out::operator<<(const FONT_OPTIONS val) {
+  char a[10];
   return *this;
 }
 }

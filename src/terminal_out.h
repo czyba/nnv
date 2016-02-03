@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstring>
+#include <terminal_out_options.h>
 
 namespace nnv {
 
@@ -12,6 +13,7 @@ public:
   terminal_out();
   terminal_out& operator<<(const std::string& s);
   terminal_out& operator<<(const char* s);
+  terminal_out& operator<<(const FONT_OPTIONS val);
 
 protected:
 private:
