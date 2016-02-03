@@ -1,3 +1,5 @@
+
+FORMAT=clang-format
 CCX=clang++
 
 FILES=                                    \
@@ -6,3 +8,6 @@ FILES=                                    \
 
 all:
 	$(CCX) -I src $(FILES) -o nnv -std=c++11
+
+format:
+	$(FORMAT) -i src/*
