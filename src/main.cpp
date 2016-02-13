@@ -1,11 +1,10 @@
 #include <iostream>
 #include <terminal_out.h>
+#include <auto_vector.hpp>
 
 using namespace std;
+using namespace nnv;
 
 int main() {
-  cout << "Hello world!" << endl;
-  string s("1asd");
-  nnv::tout << s << "  asdf";
   return 0;
 }

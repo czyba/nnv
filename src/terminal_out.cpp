@@ -11,18 +11,8 @@ terminal_out::terminal_out() {
   // ctor
 }
 
-terminal_out& terminal_out::operator<<(const string& s) {
-  write(1, s.c_str(), s.length());
-  return *this;
-}
-
-terminal_out& terminal_out::operator<<(const char* s) {
-  write(1, s, strlen(s));
-  return *this;
-}
-
-terminal_out& terminal_out::operator<<(const FONT_OPTIONS val) {
-  char a[10];
-  return *this;
+size_t terminal_out::write_chars(auto_vector<char> const& vec, size_t const start, size_t const end) {
+  ssize_t written = write(1, vec.data() + start, end - start);
+  return static_cast<size_t>(written);
 }
 }

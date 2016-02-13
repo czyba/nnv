@@ -2,9 +2,10 @@
 FORMAT=clang-format
 CCX=clang++
 
-FILES=                                    \
-				src/terminal_out.cpp              \
-				src/main.cpp
+FILES=\
+				src/terminal_out.cpp\
+				src/main.cpp\
+				src/maths.cpp
 
 OPTIONS=-ggdb -Wall -Wextra
 
