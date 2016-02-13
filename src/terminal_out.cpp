@@ -49,13 +49,11 @@ bool terminal_out::get_position(size_t& row, size_t& column) {
   fd_set readset;
   FD_ZERO(&readset);
   FD_SET(STDIN_FILENO, &readset);
+  int ret = 0;
   if (select(fd, &readset, NULL, NULL, NULL) == 1) {
-    int ret = scanf("\x1B[%lu;%luR", &row, &column);
-    if (ret != 2) {
-      return false;
-    }
+     ret = scanf("\x1B[%lu;%luR", &row, &column);
   }
-  return true;
+  return ret == 2;
 }
 
 bool terminal_out::get_size(size_t& row, size_t& column) {
@@ -101,8 +99,8 @@ bool terminal_out::move_cursor_to(size_t row, size_t column) {
   }
   toWrite += static_cast<size_t>(ret);
   a[toWrite++] = 'H';
-  write_chars(a.data(), toWrite);
-  return true;
+  size_t ret = write_chars(a.data(), toWrite);
+  return ret == toWrite;
 }
 
 size_t terminal_out::write_chars(char const* buf, size_t const size) {
@@ -140,9 +138,6 @@ bool terminal_out::modify_output(std::vector<enum FONT_OPTIONS> options) {
   }
   buf[toWrite - 1] = 'm';
   size_t ret = write_chars(buf.data(), toWrite);
-  if (ret != toWrite) {
-    return false;
-  }
-  return true;
+  return ret == toWrite;
 }
 }
