@@ -1,9 +1,9 @@
 #ifndef TERMINAL_OUT_H
 #define TERMINAL_OUT_H
 
+#include <vector>
 #include <auto_vector.hpp>
 #include <terminal_out_options.h>
-#include <vector>
 
 namespace nnv {
 

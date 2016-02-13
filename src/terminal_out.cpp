@@ -1,8 +1,6 @@
 #include <unistd.h>
-#include <terminal_out.h>
 #include <vector>
-
-#include <iostream>
+#include <terminal_out.h>
 
 using namespace std;
 using namespace nnv;
