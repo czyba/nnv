@@ -99,8 +99,8 @@ bool terminal_out::move_cursor_to(size_t row, size_t column) {
   }
   toWrite += static_cast<size_t>(ret);
   a[toWrite++] = 'H';
-  size_t ret = write_chars(a.data(), toWrite);
-  return ret == toWrite;
+  size_t ret2 = write_chars(a.data(), toWrite);
+  return ret2 == toWrite;
 }
 
 size_t terminal_out::write_chars(char const* buf, size_t const size) {
