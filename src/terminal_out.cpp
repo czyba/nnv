@@ -1,3 +1,5 @@
+#include <sys/types.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <vector>
 #include <terminal_out.h>
@@ -10,10 +12,19 @@ namespace nnv {
 terminal_out tout;
 
 terminal_out::terminal_out() {
-  fd = 1;
+  fd = open("/dev/tty", O_RDWR | O_NONBLOCK);
+}
+
+terminal_out::~terminal_out() {
+  if(fd > 0) {
+    close(fd);
+  }
 }
 
 size_t terminal_out::write_chars(char const* buf, size_t const size) {
+  if(fd < 0) {
+    return 0;
+  }
   ssize_t written = write(fd, buf, size);
   return static_cast<size_t>(written);
 }

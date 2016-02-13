@@ -10,6 +10,7 @@ namespace nnv {
 class terminal_out {
 public:
   terminal_out();
+  ~terminal_out();
   size_t write_vec(auto_vector<char> const& vec, size_t const start, size_t const end);
   bool modify_output(std::vector<enum FONT_OPTIONS> options);
 
