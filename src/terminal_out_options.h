@@ -3,7 +3,7 @@
 
 namespace nnv {
 
-enum class FONT_OPTIONS : char {
+enum class FONT_OPTIONS : unsigned char {
   FONT_DEFAULT = 0,
   FONT_BOLD_ON = 1,
   FONT_BOLD_OFF = 21,
@@ -30,7 +30,6 @@ enum class FONT_OPTIONS : char {
   BG_CYAN = 46,
   BG_WHITE = 47
 };
-
 }
 
 #endif
